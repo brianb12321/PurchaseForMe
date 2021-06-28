@@ -1,0 +1,22 @@
+﻿@page
+@model PurchaseForMe.Areas.Project.Pages.NewProjectModel
+@{
+}
+
+<form method="post">
+    @if (Model.Result != null && !Model.Result.IsSuccessful)
+    {
+        <div class="alert alert-danger">@Model.Result.Message</div>
+    }
+    <div class="mb-3">
+        <label class="form-label" asp-for="ProjectName">Project Name</label>
+        <input class="form-control" type="text" asp-for="ProjectName"/>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" asp-for="ProjectDescription">Project Description</label>
+        <input class="form-control" type="text" asp-for="ProjectDescription"/>
+    </div>
+    <div class="mb-3">
+        <button type="submit">Create</button>
+    </div>
+</form>

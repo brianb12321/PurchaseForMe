@@ -15,7 +15,10 @@ using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Configuration;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
+using PurchaseForMe.Actors.Project;
 using PurchaseForMe.Actors.WebPipeline;
+using PurchaseForMe.Configuration;
 using PurchaseForMe.Core.WebPipeline;
 using PurchaseForMe.Data.Identity;
 using PurchaseForMe.Hubs;
@@ -58,6 +61,13 @@ namespace PurchaseForMe
                 IActorRef signalR =
                     actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineActorFactory), "signalR");
                 return () => signalR;
+            });
+            services.Configure<ProjectSettings>(Configuration.GetSection("Project"));
+            services.AddSingleton<ProjectManagerFactory>(provider =>
+            {
+                var actorSystem = provider.GetRequiredService<ActorSystem>();
+                IActorRef projectManager = actorSystem.ActorOf(Props.Create<ProjectManager>(provider.GetService<IOptions<ProjectSettings>>()), "projectManager");
+                return () => projectManager;
             });
         }
 

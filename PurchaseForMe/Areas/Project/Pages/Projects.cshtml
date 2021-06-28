@@ -1,0 +1,27 @@
+﻿@page
+@inject ProjectManagerFactory factory
+@using PurchaseForMe.Actors.Project
+@using PurchaseForMe.Core.Project
+@using Akka.Actor
+@model PurchaseForMe.Areas.Project.Pages.ProjectsModel
+@{
+    var projectManager = factory();
+}
+<a asp-page="NewProject">
+    <button class="btn btn-info" type="button">New Project</button>
+</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="table-dark">Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ProjectSummary project in (await projectManager.Ask<ProjectEnumerationMessage>(new GetAllProjectsMessage())).EnumeratedProjects)
+        {
+            <tr class="table-primary">
+                <td>@project.ProjectName</td>
+            </tr>
+        }
+    </tbody>
+</table>
