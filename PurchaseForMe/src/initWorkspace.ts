@@ -59,7 +59,13 @@ export function initWorkspace() {
     document.querySelector(".navbar").classList.remove("mb-3");
     //https://developers.google.com/blockly/guides/configure/web/resizable
 
-    var pipelinePresetXml = '<xml><block type="pipeline_pipelineBody" deletable="false" movable="false"><value name="webDataModel"><block type="pipeline_createWebModel"></block></value></block></xml>';
+    var createNew = $("#CreateNew").val();
+    var workspaceXml: string;
+    if (createNew === "False") {
+        workspaceXml = $("#WorkspaceXml").val() as string;
+    } else {
+        workspaceXml = '<xml><block type="pipeline_pipelineBody" deletable="false" movable="false"><value name="webDataModel"><block type="pipeline_createWebModel"></block></value></block></xml>';
+    }
     var blocklyDiv = document.getElementById('blockly-editor');
     var workspace = Blockly.inject(blocklyDiv,
         {
@@ -73,7 +79,7 @@ export function initWorkspace() {
             theme: DarkTheme
         });
     //Add the pipeline block.
-    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(pipelinePresetXml), workspace);
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(workspaceXml), workspace);
 
     //Configure xml generation and setup editor.
     xmlEditor = new AceEditor();
@@ -91,10 +97,49 @@ export function initWorkspace() {
     });
 
     const connection = setupConnection();
-    //Setup run button
-    $("#runButton").click((evt) => {
+
+    $("#saveButton").click(evt => {
         var token = $('input[name="__RequestVerificationToken"]', form).val();
         var form = $('#__AjaxAntiForgeryForm');
+        evt.preventDefault();
+        var xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
+        var createNew = $("#CreateNew").val();
+        var projectGuid = $("#ProjectGuid").val();
+
+        var body: any = {
+            WorkspaceXml: xml,
+            ProjectGuid: projectGuid,
+            CreateNew: createNew,
+            NodeName: $("#NodeName").val()
+        }
+        if (createNew === "False") {
+            body.NodeGuid = $("#NodeGuid").val();
+        }
+        $.ajax({
+            type: "POST",
+            url: "BlockEditor",
+            headers: {
+                "RequestVerificationToken": token.toString()
+            },
+            data: JSON.stringify(body),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: (data, textStatus, response: any) => {
+                var result = JSON.parse(response.responseText);
+                if (response.status === 200) {
+                    webConsole.writeLine(result.Message);
+                    $("#NodeGuid").val(result.NodeGuid);
+                    $('input[name="CreateNew"]').val("False");
+                }
+            },
+            error: function (jqXHR: any, textStatus, errorThrown) {
+                webConsole.writeLine(jqXHR.responseText);
+            }
+        });
+    });
+
+    //Setup run button
+    $("#runButton").click((evt) => {
         evt.preventDefault();
         var xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
         var runPipelineRequest = {
@@ -111,27 +156,6 @@ export function initWorkspace() {
         } else {
             webConsole.writeLine("Cannot run pipeline; a connection to a pipeline runner has not been established.");
         }
-
-        //$.ajax({
-        //    type: "POST",
-        //    url: "BlockEditor",
-        //    headers: {
-        //        "RequestVerificationToken": token.toString()
-        //    },
-        //    data: JSON.stringify({
-        //        WorkspaceXML: xml
-        //    }),
-        //    contentType: "application/json; charset=utf-8",
-        //    dataType: "json",
-        //    success: (data, textStatus, xmlHttpRequest: any) => {
-        //        if (xmlHttpRequest.status === 200) {
-        //            webConsole.writeLine(xmlHttpRequest.responseText);
-        //        }
-        //    },
-        //    error: function (jqXHR: any, textStatus, errorThrown) {
-        //        webConsole.writeLine(jqXHR.responseText);
-        //    }
-        //});
     });
 }
 

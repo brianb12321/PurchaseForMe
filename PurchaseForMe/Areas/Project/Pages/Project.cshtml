@@ -1,0 +1,33 @@
+﻿@page
+@model PurchaseForMe.Areas.Project.Pages.ProjectModel
+@{
+}
+
+<h1>Showing project @Model.Project.Name</h1>
+<h2>Pipelines</h2>
+<a asp-page="/BlockEditor" asp-route-ProjectGuid="@Model.Project.ProjectGuid" asp-route-NodeType="@NodeType.BlocklyPipeline" asp-route-NodeName="TestPipeline">
+    <button class="btn btn-info" type="button">New Pipeline</button>
+</a>
+<table class="table">
+    <thead>
+    <tr>
+        <th class="table-dark">Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (BlocklyPipelineNode pipeline in Model.Project.ProjectItems.Where(i => i.NodeType == NodeType.BlocklyPipeline))
+    {
+        <tr class="table-primary">
+            <td>
+                <a
+                    asp-page="/BlockEditor"
+                    asp-route-ProjectGuid="@Model.Project.ProjectGuid"
+                    asp-route-NodeGuid="@pipeline.NodeGuid"
+                    asp-route-NodeType="@NodeType.BlocklyPipeline">
+                    @pipeline.NodeName
+                </a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

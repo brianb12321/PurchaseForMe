@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using PurchaseForMe.Data.Identity;
+using PurchaseForMe.Core.User;
 
 namespace PurchaseForMe.Areas.Identity.Pages.Account
 {

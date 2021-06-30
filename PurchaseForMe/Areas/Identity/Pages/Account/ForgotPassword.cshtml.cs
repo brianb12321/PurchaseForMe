@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using PurchaseForMe.Data.Identity;
+using PurchaseForMe.Core.User;
 
 namespace PurchaseForMe.Areas.Identity.Pages.Account
 {

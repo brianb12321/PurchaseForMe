@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BlocklyToolkits\pipelineToolkit.xml" />
     <None Remove="src\AceEditor.ts" />
     <None Remove="src\customBlocks\createObjectBlock.ts" />
     <None Remove="src\customBlocks\ErrorHandlingBlocks.ts" />
@@ -13,6 +14,12 @@
     <None Remove="src\customBlocks\WebBlocks.ts" />
     <None Remove="src\initWorkspace.ts" />
     <None Remove="src\WebConsole.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BlocklyToolkits\pipelineToolkit.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Identity\" />
     <Folder Include="src\_build\" />
   </ItemGroup>
 

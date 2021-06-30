@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using PurchaseForMe.Data.Identity;
+using PurchaseForMe.Core.User;
 
 namespace PurchaseForMe.Data
 {

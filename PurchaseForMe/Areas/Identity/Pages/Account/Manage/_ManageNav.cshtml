@@ -1,4 +1,4 @@
-﻿@using PurchaseForMe.Data.Identity
+﻿@using PurchaseForMe.Core.User
 @inject SignInManager<PurchaseForMeUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();

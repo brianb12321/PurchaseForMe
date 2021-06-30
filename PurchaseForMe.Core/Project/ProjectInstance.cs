@@ -19,5 +19,18 @@ namespace PurchaseForMe.Core.Project
             ProjectItems = new List<ProjectNode>();
             ProjectGuid = Guid.NewGuid();
         }
+
+        public ProjectNode this[Guid nodeGuid]
+        {
+            get
+            {
+                return ProjectItems.First(n => n.NodeGuid == nodeGuid);
+            }
+        }
+
+        public bool ContainsNodeGuid(Guid nodeGuid)
+        {
+            return ProjectItems.Any(n => n.NodeGuid == nodeGuid);
+        }
     }
 }

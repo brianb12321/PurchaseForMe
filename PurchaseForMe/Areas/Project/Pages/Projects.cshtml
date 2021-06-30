@@ -20,7 +20,7 @@
         @foreach (ProjectSummary project in (await projectManager.Ask<ProjectEnumerationMessage>(new GetAllProjectsMessage())).EnumeratedProjects)
         {
             <tr class="table-primary">
-                <td>@project.ProjectName</td>
+                <td><a asp-page="Project" asp-route-ProjectGuid="@project.ProjectGuid">@project.ProjectName</a></td>
             </tr>
         }
     </tbody>
