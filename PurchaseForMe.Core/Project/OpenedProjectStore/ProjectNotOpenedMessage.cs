@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PurchaseForMe.Core.Project
+namespace PurchaseForMe.Core.Project.OpenedProjectStore
 {
-    public class SaveProjectMessage
+    public class ProjectNotOpenedMessage
     {
         public Guid ProjectGuid { get; }
         public string UserId { get; }
 
-        public SaveProjectMessage(Guid projectGuid, string userId = "")
+        public ProjectNotOpenedMessage(Guid projectGuid, string userId)
         {
-            UserId = userId;
             ProjectGuid = projectGuid;
+            UserId = userId;
         }
     }
 }

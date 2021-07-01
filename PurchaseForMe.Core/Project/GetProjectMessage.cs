@@ -9,10 +9,12 @@ namespace PurchaseForMe.Core.Project
     public class GetProjectMessage
     {
         public Guid ProjectGuid { get; }
+        public string UserId { get; }
 
-        public GetProjectMessage(Guid projectGuid)
+        public GetProjectMessage(Guid projectGuid, string userId = "")
         {
             ProjectGuid = projectGuid;
+            UserId = userId;
         }
     }
 

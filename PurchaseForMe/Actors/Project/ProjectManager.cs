@@ -6,31 +6,39 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Akka.Actor;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PurchaseForMe.Actors.User;
 using PurchaseForMe.Configuration;
 using PurchaseForMe.Core.Project;
+using PurchaseForMe.Core.Project.OpenedProjectStore;
 using PurchaseForMe.Core.User;
+using PurchaseForMe.Core.User.Message;
 
 namespace PurchaseForMe.Actors.Project
 {
     public delegate IActorRef ProjectManagerFactory();
-    public class ProjectManager : ReceiveActor
+    public class ProjectManager : ReceiveActor, IWithUnboundedStash
     {
         private readonly IOptions<ProjectSettings> _options;
-        private readonly UserManager<PurchaseForMeUser> _userManager;
-        private readonly ConcurrentDictionary<string, UserProjects> _openedProjects;
-        private readonly ClaimsPrincipal _currentUser;
-        public ProjectManager(IOptions<ProjectSettings> options, UserManager<PurchaseForMeUser> userManager, ClaimsPrincipal currentUser)
+        private readonly IActorRef _userManager;
+        private IActorRef _openedProjectStore;
+        private IActorRef _callingActor;
+        //We want to stash any messages that may have come in when the manager is not in the normal state.
+        public IStash Stash { get; set; }
+        public ProjectManager(IOptions<ProjectSettings> options, UserManagerActorFactory userManagerActorFactory)
         {
             _options = options;
-            _userManager = userManager;
-            _openedProjects = new ConcurrentDictionary<string, UserProjects>();
-            _currentUser = currentUser;
+            _userManager = userManagerActorFactory();
+            _openedProjectStore = Context.ActorOf(Props.Create(() => new OpenedProjectsStore()), "openedProjectsStore");
+            setupProjectManager();
+            Become(NormalState);
+        }
+
+        protected void NormalState()
+        {
             ReceiveAsync<CreateProjectMessage>(async message =>
             {
                 ProjectInstance project = new ProjectInstance();
@@ -59,45 +67,74 @@ namespace PurchaseForMe.Actors.Project
             });
             ReceiveAsync<GetProjectMessage>(async message =>
             {
-                var user = await _userManager.GetUserAsync(_currentUser);
-
-                //Get project from cache
-                if (_openedProjects.ContainsKey(user.Id) && _openedProjects[user.Id].OpenedProjects.Any(p => p.ProjectGuid == message.ProjectGuid))
+                GetUserResponseMessage user = null;
+                if (string.IsNullOrEmpty(message.UserId))
                 {
-                    Sender.Tell(new GetProjectResponseMessage(_openedProjects[user.Id].OpenedProjects.FirstOrDefault(p => p.ProjectGuid == message.ProjectGuid)));
-                    return;
+                    user = await _userManager.Ask<GetUserResponseMessage>(new GetLoggedInUserMessage());
                 }
-                //If project is not in cache
-                //Need better way to do this.
+                else
+                {
+                    user = await _userManager.Ask<GetUserResponseMessage>(new GetUserByIdMessage(message.UserId));
+                }
+                _openedProjectStore.Tell(new GetOpenedProjectMessage(message.UserId, message.ProjectGuid), Self);
+                _callingActor = Sender;
+                Become(OpeningProject);
+            });
+            ReceiveAsync<SaveProjectMessage>(async message =>
+            {
+                string userId = "";
+                if (string.IsNullOrEmpty(message.UserId))
+                {
+                    userId = (await _userManager.Ask<GetUserResponseMessage>(new GetLoggedInUserMessage())).User.Id;
+                }
+                else
+                {
+                    userId = message.UserId;
+                }
+                _openedProjectStore.Tell(new GetOpenedProjectMessage(userId, message.ProjectGuid));
+                Become(SavingProject);
+            });
+            Receive<CloseAllUserProjectsMessage>(message =>
+            {
+                _openedProjectStore.Tell(message, Self);
+            });
+        }
+        protected void OpeningProject()
+        {
+            Receive<GetProjectResponseMessage>(message =>
+            {
+                _callingActor.Tell(new GetProjectResponseMessage(message.Project));
+                Stash.UnstashAll();
+                Become(NormalState);
+            });
+            ReceiveAsync<ProjectNotOpenedMessage>(async message =>
+            {
                 var projects = await getAllProjects();
                 var project = projects
                     .FirstOrDefault(s => s.ProjectGuid.Equals(message.ProjectGuid));
 
-                if (!_openedProjects.ContainsKey(user.Id))
-                {
-                    UserProjects openedProjects = new UserProjects(user);
-                    openedProjects.OpenedProjects.Add(project);
-                    _openedProjects.AddOrUpdate(user.Id, openedProjects, (id, p) => openedProjects);
-                }
-                else
-                {
-                    _openedProjects[user.Id].OpenedProjects.Add(project);
-                }
-                Sender.Tell(new GetProjectResponseMessage(project));
+                Sender.Tell(new OpenProjectMessage(message.UserId, project));
+                _callingActor.Tell(new GetProjectResponseMessage(project));
+                Stash.UnstashAll();
+                Become(NormalState);
             });
-            ReceiveAsync<SaveProjectMessage>(async message =>
-            {
-                var user = await _userManager.GetUserAsync(_currentUser);
-                if (!_openedProjects.ContainsKey(user.Id) || _openedProjects[user.Id].OpenedProjects.Any(p => p.ProjectGuid != message.ProjectGuid))
-                {
-                    throw new ArgumentException($"Project {message.ProjectGuid} must be opened by a user.");
-                }
+            ReceiveAny(message => Stash.Stash());
+        }
 
-                await saveNewProjectAsync(
-                    _openedProjects[user.Id].OpenedProjects.FirstOrDefault(p => p.ProjectGuid == message.ProjectGuid),
-                    true);
+        protected void SavingProject()
+        {
+            Receive<ProjectNotOpenedMessage>(message =>
+            {
+                Stash.UnstashAll();
+                Become(NormalState);
             });
-            setupProjectManager();
+            ReceiveAsync<GetProjectResponseMessage>(async message =>
+            {
+                await saveNewProjectAsync(message.Project, true);
+                Stash.UnstashAll();
+                Become(NormalState);
+            });
+            ReceiveAny(message => Stash.Stash());
         }
 
         private void setupProjectManager()

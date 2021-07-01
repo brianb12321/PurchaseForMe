@@ -3,6 +3,7 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Xml;
 using Akka.Actor;
@@ -40,7 +41,7 @@ namespace PurchaseForMe.Pages
         public async Task<IActionResult> OnGetAsync()
         {
             var projectGuid = Guid.Parse(ProjectGuid);
-            ProjectInstance project = (await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(projectGuid))).Project;
+            ProjectInstance project = (await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(projectGuid, User.FindFirstValue(ClaimTypes.NameIdentifier)))).Project;
             if (!string.IsNullOrEmpty(NodeGuid))
             {
                 ProjectNode node = project[Guid.Parse(NodeGuid)];
@@ -67,8 +68,9 @@ namespace PurchaseForMe.Pages
             string projectGuidString = ((JValue) messageObj.ProjectGuid).Value<string>();
             Guid projectGuid = Guid.Parse(projectGuidString);
             string newNodeName = ((JValue) messageObj.NodeName).Value<string>();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ProjectInstance project =
-                (await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(projectGuid))).Project;
+                (await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(projectGuid, userId))).Project;
             Guid nodeGuid = Guid.Empty;
             BlocklyPipelineNode node = null;
             if (((JValue)messageObj.CreateNew).Value<bool>())
@@ -91,7 +93,7 @@ namespace PurchaseForMe.Pages
             
             node.BlocklyWorkspace.LoadXml(((JValue)messageObj.WorkspaceXml).Value<string>());
             node.NodeName = newNodeName;
-            _projectManager.Tell(new SaveProjectMessage(projectGuid));
+            _projectManager.Tell(new SaveProjectMessage(projectGuid, userId));
             dynamic resultObject = new ExpandoObject();
             resultObject.NodeGuid = node.NodeGuid;
             resultObject.Message = $"Node {node.NodeName} successfully saved.";

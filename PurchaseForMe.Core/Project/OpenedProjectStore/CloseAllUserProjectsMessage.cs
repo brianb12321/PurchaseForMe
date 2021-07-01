@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace PurchaseForMe.Core.Project
 {
-    public class SaveProjectMessage
+    public class CloseAllUserProjectsMessage
     {
-        public Guid ProjectGuid { get; }
         public string UserId { get; }
 
-        public SaveProjectMessage(Guid projectGuid, string userId = "")
+        public CloseAllUserProjectsMessage(string userId)
         {
             UserId = userId;
-            ProjectGuid = projectGuid;
         }
     }
 }

@@ -10,12 +10,12 @@ namespace PurchaseForMe.Core.Project
 {
     public class UserProjects
     {
-        public PurchaseForMeUser User { get; }
+        public string UserId { get; }
         public ConcurrentBag<ProjectInstance> OpenedProjects { get; }
 
-        public UserProjects(PurchaseForMeUser user)
+        public UserProjects(string userId)
         {
-            User = user;
+            UserId = userId;
             OpenedProjects = new ConcurrentBag<ProjectInstance>();
         }
     }

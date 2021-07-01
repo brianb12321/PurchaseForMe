@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using PurchaseForMe.Actors.Project;
+using PurchaseForMe.Actors.User;
 using PurchaseForMe.Actors.WebPipeline;
 using PurchaseForMe.Configuration;
 using PurchaseForMe.Core.User;
@@ -48,9 +49,6 @@ namespace PurchaseForMe
             services.AddRazorPages();
             services.AddSignalR();
             services.AddHttpContextAccessor();
-            services.AddTransient<ClaimsPrincipal>(s =>
-                s.GetService<IHttpContextAccessor>().HttpContext.User);
-
             services.AddSingleton<ActorSystem>(provider => ActorSystem.Create("purchaseForMe", ConfigurationFactory.ParseString(@"
 akka {  
     stdout-loglevel = DEBUG
@@ -82,15 +80,22 @@ akka {
                     actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineActorFactory), "signalR");
                 return () => signalR;
             });
+            services.AddSingleton<UserManagerActorFactory>(provider =>
+            {
+                var actorSystem = provider.GetRequiredService<ActorSystem>();
+                var scopedProvider = provider.CreateScope().ServiceProvider;
+                IActorRef userManager = actorSystem.ActorOf(Props.Create(() =>
+                    new UserManagerActor(scopedProvider.GetService<UserManager<PurchaseForMeUser>>(),
+                        scopedProvider.GetService<IHttpContextAccessor>())), "userManager");
+                return () => userManager;
+            });
             services.Configure<ProjectSettings>(Configuration.GetSection("Project"));
             services.AddSingleton<ProjectManagerFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
-                var scopedProvider = provider.CreateScope().ServiceProvider;
-                IActorRef projectManager = actorSystem.ActorOf(Props.Create<ProjectManager>(
-                    scopedProvider.GetService<IOptions<ProjectSettings>>(),
-                    scopedProvider.GetService<UserManager<PurchaseForMeUser>>(),
-                    scopedProvider.GetService<ClaimsPrincipal>()), "projectManager");
+                IActorRef projectManager = actorSystem.ActorOf(Props.Create(() => new ProjectManager(
+                    provider.GetService<IOptions<ProjectSettings>>(),
+                    provider.GetService<UserManagerActorFactory>())), "projectManager");
                 return () => projectManager;
             });
         }

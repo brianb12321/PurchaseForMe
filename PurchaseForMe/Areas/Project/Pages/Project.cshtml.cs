@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Akka.Actor;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PurchaseForMe.Actors.Project;
@@ -25,7 +27,7 @@ namespace PurchaseForMe.Areas.Project.Pages
         {
             Guid guid = Guid.Parse(ProjectGuid);
             GetProjectResponseMessage response =
-                await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(guid));
+                await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(guid, User.FindFirstValue(ClaimTypes.NameIdentifier)));
             if (response.Project == null)
             {
                 return NotFound();

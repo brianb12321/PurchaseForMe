@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PurchaseForMe.Core.Project
+namespace PurchaseForMe.Core.Project.OpenedProjectStore
 {
-    public class SaveProjectMessage
+    public class GetOpenedProjectMessage
     {
         public Guid ProjectGuid { get; }
         public string UserId { get; }
 
-        public SaveProjectMessage(Guid projectGuid, string userId = "")
+        public GetOpenedProjectMessage(string userId, Guid projectGuid)
         {
             UserId = userId;
             ProjectGuid = projectGuid;
