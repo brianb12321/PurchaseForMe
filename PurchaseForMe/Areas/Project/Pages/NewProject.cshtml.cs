@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Akka.Actor;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PurchaseForMe.Actors.Project;
@@ -7,6 +8,7 @@ using PurchaseForMe.Core.Project;
 
 namespace PurchaseForMe.Areas.Project.Pages
 {
+    [Authorize]
     public class NewProjectModel : PageModel
     {
         public class CreateResult

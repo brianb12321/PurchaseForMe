@@ -1,0 +1,14 @@
+﻿@page
+@model PurchaseForMe.Areas.Project.Pages.NewTaskModel
+@{
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label" asp-for="TaskName">Task Name</label>
+        <input class="form-control" type="text" asp-for="TaskName"/>
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Create Task</button>
+    </div>
+</form>

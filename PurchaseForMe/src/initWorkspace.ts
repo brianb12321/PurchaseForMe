@@ -2,15 +2,18 @@
 import DarkTheme from '@blockly/theme-dark';
 import * as signalR from "@microsoft/signalr";
 import * as Blockly from "blockly";
-import { registerErrorHandlingBlocks } from './customBlocks/ErrorHandlingBlocks';
-import { registerPipelineBlocks } from './customBlocks/PipelineBlocks';
-import { registerWebBlocks } from './customBlocks/WebBlocks';
+import { registerErrorHandlingBlocks } from './customBlocks/errorHandlingBlocks';
+import { registerPipelineBlocks } from './customBlocks/pipelineBlocks';
+import { registerWebBlocks } from './customBlocks/webBlocks';
 import { AceEditor } from './AceEditor';
 import { WebConsole } from './WebConsole';
 import { registerCreateObjectBlock } from './customBlocks/createObjectBlock';
+import { registerTimerBlocks } from './customBlocks/timerBlocks';
+import { registerObjectBlocks } from './customBlocks/objectBlocks';
 
 let xmlEditor: AceEditor;
 let webConsole: WebConsole;
+let workspace: Blockly.WorkspaceSvg;
 
 export function AddAntiForgeryToken(data) {
     data.__RequestVerificationToken = $('#__AjaxAntiForgeryForm input[name=__RequestVerificationToken]').val();
@@ -20,7 +23,9 @@ export function addBlocks() {
     registerWebBlocks();
     registerErrorHandlingBlocks();
     registerPipelineBlocks();
+    registerObjectBlocks();
     registerCreateObjectBlock();
+    registerTimerBlocks();
 }
 export function setupConnection(): signalR.HubConnection {
     //Open SignalR connection
@@ -30,6 +35,7 @@ export function setupConnection(): signalR.HubConnection {
 
     connection.on("Result",
         (result) => {
+            $("#runButton").prop("disabled", false);
             let resultJson: any = JSON.parse(result);
             if (resultJson.IsSuccessful) {
                 webConsole.writeLine("Pipeline ran successfully.");
@@ -63,11 +69,9 @@ export function initWorkspace() {
     var workspaceXml: string;
     if (createNew === "False") {
         workspaceXml = $("#WorkspaceXml").val() as string;
-    } else {
-        workspaceXml = '<xml><block type="pipeline_pipelineBody" deletable="false" movable="false"><value name="webDataModel"><block type="pipeline_createWebModel"></block></value></block></xml>';
     }
     var blocklyDiv = document.getElementById('blockly-editor');
-    var workspace = Blockly.inject(blocklyDiv,
+    workspace = Blockly.inject(blocklyDiv,
         {
             toolbox: document.getElementById("toolbox"),
             grid: {
@@ -149,13 +153,35 @@ export function initWorkspace() {
 
         if (connection.state === signalR.HubConnectionState.Connected) {
             connection.send("RunPipelineBlockly", JSON.stringify(runPipelineRequest))
-                .then(() => webConsole.writeLine("Message sent."))
+                .then(() => {
+                    webConsole.writeLine("Message sent.");
+                    $("#runButton").prop("disabled", true);
+                })
                 .catch((error) => {
                     webConsole.writeLine(`An error occurred while sending a message: ${error}`);
                 });
         } else {
             webConsole.writeLine("Cannot run pipeline; a connection to a pipeline runner has not been established.");
         }
+    });
+    //Setup toggle XML button
+    $("#toggleXmlButton").text("Show XML");
+    $("#toggleXmlButton").click(evt => {
+        evt.preventDefault();
+        let xmlEditor = $("#xmlEditor");
+        if (xmlEditor.css("display") === "none") {
+            xmlEditor.css("display", "block");
+            $("#toggleXmlButton").text("Hide XML");
+        } else {
+            xmlEditor.css("display", "none");
+            $("#toggleXmlButton").text("Show XML");
+        }
+        workspace.resizeContents();
+        workspace.resize();
+    });
+    $("#clearConsoleButton").click(evt => {
+        evt.preventDefault();
+        webConsole.clear();
     });
 }
 

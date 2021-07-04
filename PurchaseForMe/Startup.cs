@@ -1,29 +1,23 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PurchaseForMe.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PurchaseForMe.Actors.Project;
+using PurchaseForMe.Actors.TaskSystem;
 using PurchaseForMe.Actors.User;
 using PurchaseForMe.Actors.WebPipeline;
 using PurchaseForMe.Configuration;
 using PurchaseForMe.Core.User;
-using PurchaseForMe.Core.WebPipeline;
 using PurchaseForMe.Hubs;
 
 namespace PurchaseForMe
@@ -65,19 +59,28 @@ akka {
     }  
 ")));
             
-            services.AddSingleton<WebPipelineActorFactory>(provider =>
+            services.AddSingleton<PipelineSchedulingBusFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
-                IActorRef pipeline = actorSystem.ActorOf(Props.Create<WebPipelineActor>(), "pipeline");
-                return () => pipeline;
+                ILogger<PipelineSchedulingBus> logger = provider.GetService<ILogger<PipelineSchedulingBus>>();
+                IActorRef pipelineBus = actorSystem.ActorOf(Props.Create(() => new PipelineSchedulingBus(logger)), "pipelineSchedulingBus");
+                return () => pipelineBus;
+            });
+            services.AddSingleton<TaskSchedulingBusFactory>(provider =>
+            {
+                var actorSystem = provider.GetRequiredService<ActorSystem>();
+                ILogger<TaskSchedulingBus> logger = provider.GetService<ILogger<TaskSchedulingBus>>();
+                IActorRef taskBus = actorSystem.ActorOf(Props.Create(() => new TaskSchedulingBus(logger)),
+                    "taskSchedulingBus");
+                return () => taskBus;
             });
             services.AddSingleton<WebPipelineSignalRActorFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
                 var hubContext = provider.GetRequiredService<IHubContext<PipelineRunnerHub>>();
-                var pipelineActorFactory = provider.GetRequiredService<WebPipelineActorFactory>();
+                var pipelineSchedulingBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
                 IActorRef signalR =
-                    actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineActorFactory), "signalR");
+                    actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineSchedulingBus), "signalR");
                 return () => signalR;
             });
             services.AddSingleton<UserManagerActorFactory>(provider =>

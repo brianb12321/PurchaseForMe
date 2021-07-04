@@ -14,28 +14,36 @@ namespace PurchaseForMe.Blocks.Web
         public override object Evaluate(Context context)
         {
             ElementType type = Enum.Parse<ElementType>(this.Fields.Get("elementType"));
+            bool fromElement = (Fields.Get("from") == "Element");
             string name = this.Values.Evaluate("elementName", context).ToString();
-            if (!context.Variables.ContainsKey("Driver"))
+            if (!context.GetRootContext().Variables.ContainsKey("__driver"))
                 throw new Exception("A web-driver has not been initialized. Please open a web driver.");
 
-            IWebDriver driver = (IWebDriver)context.Variables["Driver"];
+            ISearchContext rootElement;
+            if (fromElement)
+            {
+                rootElement = (IWebElement)Values.Evaluate("rootElement", context);
+            }
+            else
+            {
+                rootElement = (IWebDriver)context.GetRootContext().Variables["__driver"];
+            }
             IWebElement[] elements = null;
             switch (type)
             {
                 case ElementType.Class:
-                    elements = driver.FindElements(By.ClassName(name)).ToArray();
+                    elements = rootElement.FindElements(By.ClassName(name)).ToArray();
                     break;
                 case ElementType.Id:
-                    elements = driver.FindElements(By.Id(name)).ToArray();
+                    elements = rootElement.FindElements(By.Id(name)).ToArray();
                     break;
                 case ElementType.Name:
-                    elements = driver.FindElements(By.Name(name)).ToArray();
+                    elements = rootElement.FindElements(By.Name(name)).ToArray();
                     break;
                 case ElementType.TagName:
-                    elements = driver.FindElements(By.TagName(name)).ToArray();
+                    elements = rootElement.FindElements(By.TagName(name)).ToArray();
                     break;
             }
-
             return elements;
         }
     }

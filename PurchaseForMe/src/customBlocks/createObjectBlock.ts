@@ -1,25 +1,23 @@
 ﻿import * as Blockly from "blockly";
 
-var propertyCount = 0;
-
 export function registerCreateObjectBlock() {
     let mutatorMixim = {
         mutationToDom: function () {
             var block = this as unknown as Blockly.Block;
             var container = document.createElement("mutation");
-            container.setAttribute("items", propertyCount.toString());
+            container.setAttribute("items", (this as unknown as any).propertyCount.toString());
             return container;
         },
         domToMutation: function (xmlElement: any) {
-            propertyCount = parseInt(xmlElement.getAttribute('items'), 10);
+            this["propertyCount"] = parseInt(xmlElement.getAttribute('items'), 10);
             var block = this as unknown as Blockly.Block;
-            updateShape(block);
+            (this as unknown as any).updateShape(block);
         },
         decompose(workspace: Blockly.Workspace): Blockly.Block {
             var topBlock = workspace.newBlock("pipeline_createObject_empty");
             (topBlock as any).initSvg();
             var connection = topBlock.getInput("propertyList").connection;
-            for (let i = 0; i < propertyCount; i++) {
+            for (let i = 0; i < this["propertyCount"]; i++) {
                 var propertyBlock = workspace.newBlock("pipeline_createObject_property");
                 (propertyBlock as any).initSvg();
                 connection.connect(propertyBlock.previousConnection);
@@ -35,16 +33,16 @@ export function registerCreateObjectBlock() {
                 connections.push((propertyBlock as any).valueConnection_);
                 propertyBlock = propertyBlock.nextConnection && propertyBlock.nextConnection.targetBlock();
             }
-            for (var i = 0; i < propertyCount; i++) {
+            for (var i = 0; i < this["propertyCount"]; i++) {
                 var connection = block.getInput('value' + i).connection.targetConnection;
                 if (connection && connections.indexOf(connection) === -1) {
                     connection.disconnect();
                 }
             }
-            propertyCount = connections.length;
-            updateShape(block);
+            this["propertyCount"] = connections.length;
+            (this as unknown as any).updateShape();
             // Reconnect any child blocks.
-            for (var i = 0; i < propertyCount; i++) {
+            for (var i = 0; i < this["propertyCount"]; i++) {
                 Blockly.Mutator.reconnect(connections[i], block, 'value' + i);
             }
         },
@@ -58,6 +56,30 @@ export function registerCreateObjectBlock() {
                 i++;
                 itemBlock = itemBlock.nextConnection &&
                     itemBlock.nextConnection.targetBlock();
+            }
+        },
+        updateShape() {
+            let block = this as unknown as Blockly.Block;
+            if (this["propertyCount"] && block.getInput('EMPTY')) {
+                block.removeInput('EMPTY');
+            } else if (!this["propertyCount"] && !block.getInput('EMPTY')) {
+                block.appendDummyInput('EMPTY')
+                    .appendField("create empty object");
+            }
+            for (var i = 0; i < this["propertyCount"]; i++) {
+                if (!block.getInput(`value${i}`)) {
+                    let textInput = new Blockly.FieldTextInput();
+                    textInput.setSpellcheck(false);
+                    block.appendValueInput(`value${i}`)
+                        .appendField("Name")
+                        .appendField(textInput, `property${i}`)
+                        .setAlign(Blockly.ALIGN_RIGHT);
+                }
+            }
+            // Remove deleted inputs.
+            while (block.getInput('value' + i)) {
+                block.removeInput('value' + i);
+                i++;
             }
         }
     }
@@ -87,35 +109,13 @@ export function registerCreateObjectBlock() {
 
     Blockly.Blocks["pipeline_createObject"] = {
         init: function () {
+            this["propertyCount"] = 3;
             let block = this as Blockly.Block;
             block.jsonInit({'mutator': 'pipeline_createObject_mutator'});
             block.setTooltip("Creates a new object");
             block.setOutput(true, "Object");
             block.setColour(30);
-            updateShape(block);
-        }
-    }
-    function updateShape(block: Blockly.Block) {
-        if (propertyCount && block.getInput('EMPTY')) {
-            block.removeInput('EMPTY');
-        } else if (!propertyCount && !block.getInput('EMPTY')) {
-            block.appendDummyInput('EMPTY')
-                .appendField("create empty object");
-        }
-        for (var i = 0; i < propertyCount; i++) {
-            if (!block.getInput(`value${i}`)) {
-                let textInput = new Blockly.FieldTextInput();
-                textInput.setSpellcheck(false);
-                block.appendValueInput(`value${i}`)
-                    .appendField("Name")
-                    .appendField(textInput, `property${i}`)
-                    .setAlign(Blockly.ALIGN_RIGHT);
-            }
-        }
-        // Remove deleted inputs.
-        while (block.getInput('value' + i)) {
-            block.removeInput('value' + i);
-            i++;
+            (this as any).updateShape();
         }
     }
 }

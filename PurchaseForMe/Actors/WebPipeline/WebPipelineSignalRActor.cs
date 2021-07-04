@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Linq;
+using PurchaseForMe.Core.Code.Runner;
 using PurchaseForMe.Core.WebPipeline;
 using PurchaseForMe.Hubs;
 
@@ -25,32 +27,28 @@ namespace PurchaseForMe.Actors.WebPipeline
     public class WebPipelineSignalRActor : ReceiveActor
     {
         private readonly IHubContext<PipelineRunnerHub> _context;
-        private string _currentConnectedClientId;
-        private readonly IActorRef _pipelineActor;
-        public WebPipelineSignalRActor(IHubContext<PipelineRunnerHub> context, WebPipelineActorFactory pipeline)
+        private readonly IActorRef _pipelineSchedulingBus;
+        private readonly ConcurrentDictionary<Guid, string> _clientsToSessions;
+        public WebPipelineSignalRActor(IHubContext<PipelineRunnerHub> context, PipelineSchedulingBusFactory pipeline)
         {
+            _clientsToSessions = new ConcurrentDictionary<Guid, string>();
             _context = context;
-            _pipelineActor = pipeline();
-            Become(PipelineReady);
-        }
-
-        protected void PipelineRunning()
-        {
-            ReceiveAsync<PipelineInstanceResult>(async result =>
-            {
-                await _context.Clients.Client(_currentConnectedClientId).SendAsync("Result", JObject.FromObject(result).ToString());
-                Become(PipelineReady);
-            });
-        }
-
-        protected void PipelineReady()
-        {
-            _currentConnectedClientId = string.Empty;
+            _pipelineSchedulingBus = pipeline();
             Receive<WebPipelineSignalRRequestMessage>(request =>
             {
-                _currentConnectedClientId = request.ClientId;
-                _pipelineActor.Tell(request.Request, Self);
-                Become(PipelineRunning);
+                _clientsToSessions.TryAdd(request.Request.SessionId, request.ClientId);
+                _pipelineSchedulingBus.Tell(request.Request, Self);
+            });
+            ReceiveAsync<NoRunnerAvailableMessage>(async message =>
+            {
+                PipelineRunRequest originalMessage = (PipelineRunRequest) message.RequestMessage;
+                _clientsToSessions.Remove(originalMessage.SessionId, out string clientId);
+                await _context.Clients.Client(clientId).SendAsync("Console", $"No runners are available to process your code. Please try again later.{Environment.NewLine}");
+            });
+            ReceiveAsync<PipelineInstanceResult>(async result =>
+            {
+                _clientsToSessions.Remove(result.SessionId, out string clientId);
+                await _context.Clients.Client(clientId).SendAsync("Result", JObject.FromObject(result).ToString());
             });
         }
     }

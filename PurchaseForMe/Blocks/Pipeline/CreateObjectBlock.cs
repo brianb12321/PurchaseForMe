@@ -18,7 +18,6 @@ namespace PurchaseForMe.Blocks.Pipeline
                 Value propertyValue = this.Values[i];
                 ((IDictionary<string, Object>)returnObject).Add(propertyName.Value, propertyValue.Evaluate(context));
             }
-
             return returnObject;
         }
     }

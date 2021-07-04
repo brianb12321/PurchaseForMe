@@ -29,7 +29,7 @@ export function registerPipelineBlocks() {
     Blockly.Blocks["pipeline_getObjectValue"] = {
         init: function() {
             let block = this as Blockly.Block;
-            block.setTooltip("Gets the value from a property attached to an input object.");
+            block.setTooltip("Gets the value from a property attached to an input object. You may use dot notation to traverse the object graph.");
             block.setColour(30);
             block.setInputsInline(true);
             block.setOutput(true);

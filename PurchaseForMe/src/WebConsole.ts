@@ -11,4 +11,7 @@ export class WebConsole {
     public writeLine(message: string) {
         this.write(message + "\n");
     }
+    public clear() {
+        this.console.Clear();
+    }
 }

@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using PurchaseForMe.Actors.Project;
 using PurchaseForMe.Core.Project;
 using PurchaseForMe.Core.Project.Nodes;
+using PurchaseForMe.Core.Project.Nodes.Blockly;
 
 namespace PurchaseForMe.Pages
 {
@@ -24,8 +25,6 @@ namespace PurchaseForMe.Pages
         public string ProjectGuid { get; set; }
         [BindProperty(SupportsGet = true)]
         public string NodeGuid { get; set; }
-        [BindProperty(SupportsGet = true)]
-        public NodeType NodeType { get; set; }
         public string NodeName { get; set; }
         public string ToolkitXml { get; set; }
         public bool CreateNew { get; set; }
@@ -45,19 +44,38 @@ namespace PurchaseForMe.Pages
             if (!string.IsNullOrEmpty(NodeGuid))
             {
                 ProjectNode node = project[Guid.Parse(NodeGuid)];
-                if (node.NodeType == NodeType)
+                var blocklyNode = node as BlocklyNode;
+                if (blocklyNode.BlocklyWorkspace == null)
                 {
-                    var blocklyNode = node as BlocklyPipelineNode;
-                    WorkspaceXml = blocklyNode.BlocklyWorkspace.InnerXml;
-                    NodeName = blocklyNode.NodeName;
-                    ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolkits/pipelineToolkit.xml");
+                    blocklyNode.BlocklyWorkspace = new XmlDocument();
+                    if (blocklyNode.NodeType == NodeType.BlocklyPipeline)
+                    {
+                        blocklyNode.BlocklyWorkspace.LoadXml("<xml><block type=\"pipeline_pipelineBody\" deletable=\"false\" movable=\"false\"><value name=\"webDataModel\"><block type=\"pipeline_createWebModel\"></block></value></block></xml>");
+                    }
+                    else
+                    {
+                        blocklyNode.BlocklyWorkspace.LoadXml("<xml></xml>");
+                    }
+                }
+                WorkspaceXml = blocklyNode.BlocklyWorkspace.InnerXml;
+                NodeName = blocklyNode.NodeName;
+                if (blocklyNode.NodeType == NodeType.BlocklyPipeline)
+                {
+                    ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/pipelineToolbox.xml");
                     return Page();
+                }
+                else if (blocklyNode.NodeType == NodeType.BlocklyTask)
+                {
+                    ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/taskToolbox.xml");
                 }
                 else return NotFound();
             }
-            ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolkits/pipelineToolkit.xml");
-            NodeName = "Test Pipeline";
-            CreateNew = true;
+            else
+            {
+                ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/pipelineToolbox.xml");
+                NodeName = "Test Pipeline";
+                CreateNew = true;
+            }
             return Page();
         }
 
@@ -72,25 +90,14 @@ namespace PurchaseForMe.Pages
             ProjectInstance project =
                 (await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(projectGuid, userId))).Project;
             Guid nodeGuid = Guid.Empty;
-            BlocklyPipelineNode node = null;
-            if (((JValue)messageObj.CreateNew).Value<bool>())
-            {
-                node = new BlocklyPipelineNode();
-                node.NodeName = newNodeName;
-                project.ProjectItems.Add(node);
-                nodeGuid = node.NodeGuid;
-            }
-            else
-            {
-                string nodeGuidString = ((JValue) messageObj.NodeGuid).Value<string>();
-                nodeGuid = Guid.Parse(nodeGuidString);
-                if (!project.ContainsNodeGuid(nodeGuid))
-                    throw new ArgumentException(
-                        $"Provided Guid {nodeGuid} does not exist. Please use the CreateNew flag.");
+            BlocklyNode node = null;
+            string nodeGuidString = ((JValue)messageObj.NodeGuid).Value<string>();
+            nodeGuid = Guid.Parse(nodeGuidString);
+            if (!project.ContainsNodeGuid(nodeGuid))
+                throw new ArgumentException(
+                    $"Provided Guid {nodeGuid} does not exist. Please use the CreateNew flag.");
 
-                node = (BlocklyPipelineNode)project[nodeGuid];
-            }
-            
+            node = (BlocklyNode)project[nodeGuid];
             node.BlocklyWorkspace.LoadXml(((JValue)messageObj.WorkspaceXml).Value<string>());
             node.NodeName = newNodeName;
             _projectManager.Tell(new SaveProjectMessage(projectGuid, userId));

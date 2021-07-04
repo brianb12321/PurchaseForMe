@@ -8,6 +8,6 @@ namespace PurchaseForMe.Core.Project
 {
     public enum NodeType
     {
-        BlocklyPipeline
+        BlocklyPipeline, BlocklyTask
     }
 }

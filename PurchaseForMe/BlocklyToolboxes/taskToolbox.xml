@@ -305,6 +305,16 @@
     </block>
     <block type="math_random_float"></block>
   </category>
+  <category name="Timer" colour="#113bc2">
+    <block type="timer_loopWait">
+      <value name="waitTime">
+        <shadow type="math_number">
+          <field name="NUM">1000</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="timer_loopControl"></block>
+  </category>
   <category name="Error Handling" colour="#992aa4">
     <block type="error_tryCatch"></block>
     <block type="error_throw">
@@ -326,8 +336,14 @@
       </value>
     </block>
   </category>
-  <category name="Pipeline" colour="#334cd1">
-    <block type="pipeline_createWebModel"></block>
+  <category name="Object" colour="#223bc2">
+    <block type="pipeline_getObjectValue">
+      <value name="propertyName">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
     <block type="pipeline_createObject">
       <mutation items="3"></mutation>
     </block>
@@ -363,5 +379,28 @@
       </value>
     </block>
     <block type="web_getElementDetail"></block>
+    <block type="web_sendKey">
+      <value name="keyString">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
+    <block type="web_clickElement"></block>
+    <block type="web_maximizeWindow"></block>
+    <block type="web_getElementAttribute">
+      <value name="attributeName">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
+    <block type="web_navigateUrl">
+      <value name="url">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
   </category>
 </xml>

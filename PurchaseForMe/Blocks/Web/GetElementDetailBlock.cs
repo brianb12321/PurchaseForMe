@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,24 +14,27 @@ namespace PurchaseForMe.Blocks.Web
     {
         public enum ElementInformationType
         {
-            InnerHtml
+            InnerHtml, InnerText
         }
         public override object Evaluate(Context context)
         {
             ElementInformationType infoType = Enum.Parse<ElementInformationType>(this.Fields.Get("informationType"));
             IWebElement element = (IWebElement)this.Values.Evaluate("element", context);
-            IWebDriver driver = (IWebDriver)context.Variables["Driver"];
-            switch (infoType)
+            IWebDriver driver = (IWebDriver)context.GetRootContext().Variables["__driver"];
+            if (driver is IJavaScriptExecutor js)
             {
-                default:
-                case ElementInformationType.InnerHtml:
-                    if (driver is IJavaScriptExecutor js)
-                    {
-                        string innerHtml = (string) js.ExecuteScript("return arguments[0].innerHTML;", element);
+                switch (infoType)
+                {
+                    default:
+                    case ElementInformationType.InnerHtml:
+                        string innerHtml = (string)js.ExecuteScript("return arguments[0].innerHTML;", element);
                         return innerHtml;
-                    }
-                    else throw new ArgumentException("Driver is not a javascript executor.");
+                    case ElementInformationType.InnerText:
+                        string innerText = (string) js.ExecuteScript("return arguments[0].innerText", element);
+                        return innerText;
+                }
             }
+            else throw new ArgumentException("Driver is not a javascript executor.");
         }
     }
 }

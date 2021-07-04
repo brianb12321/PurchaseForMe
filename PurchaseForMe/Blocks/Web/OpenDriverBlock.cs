@@ -21,6 +21,15 @@ namespace PurchaseForMe.Blocks.Web
             DriverType driverType = Enum.Parse<DriverType>(this.Fields.Get("driverType"));
             string url = this.Values.Evaluate("url", context).ToString();
             Statement body = this.Statements.Get("body");
+            Statement setupBody = null;
+            try
+            {
+                setupBody = this.Statements.Get("setupBody");
+            }
+            catch (ArgumentException)
+            {
+                
+            }
             IWebDriver driver = null;
             try
             {
@@ -31,14 +40,19 @@ namespace PurchaseForMe.Blocks.Web
                         driver = new ChromeDriver();
                         break;
                 }
+                context.GetRootContext().Variables.Add("__driver", driver);
+                if (setupBody != null)
+                {
+                    setupBody.Evaluate(context);
+                }
 
                 driver.Navigate().GoToUrl(url);
-                context.Variables.Add("Driver", driver);
                 body.Evaluate(context);
             }
             finally
             {
-                driver?.Close();
+                driver?.Quit();
+                base.Evaluate(context);
             }
 
             return null;

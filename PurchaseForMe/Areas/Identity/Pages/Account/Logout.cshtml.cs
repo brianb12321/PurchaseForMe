@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using PurchaseForMe.Actors.Project;
 using PurchaseForMe.Core.Project;
+using PurchaseForMe.Core.Project.OpenedProjectStore;
 using PurchaseForMe.Core.User;
 
 namespace PurchaseForMe.Areas.Identity.Pages.Account
