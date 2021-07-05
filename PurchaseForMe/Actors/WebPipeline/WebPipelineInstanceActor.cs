@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Reflection;
 using Akka.Actor;
@@ -9,6 +11,7 @@ using PurchaseForMe.Blocks;
 using PurchaseForMe.Core.WebPipeline;
 using Microsoft.CodeAnalysis.Syntax;
 using PurchaseForMe.Core.Code.Instance;
+using PurchaseForMe.Hubs;
 
 namespace PurchaseForMe.Actors.WebPipeline
 {
@@ -34,12 +37,8 @@ namespace PurchaseForMe.Actors.WebPipeline
                 IBrowsingContext browsingContext = null;
                 try
                 {
+                    PipelineRunRequest originalMessage = (PipelineRunRequest)r.AdditionalData;
                     Workspace blockWorkspace = blockParser.Parse(r.WorkspaceXml);
-
-                    //Redirect standard out to SignalR channel--Selenium logs to standard out.
-                    //TextWriter old = Console.Out;
-                    //SignalRTextWriter newWriter = new SignalRTextWriter(Clients.Caller);
-                    //Console.SetOut(newWriter);
 
                     //Setup variables
                     IConfiguration webConfiguration = AngleSharp.Configuration.Default
@@ -48,21 +47,18 @@ namespace PurchaseForMe.Actors.WebPipeline
 
                     browsingContext = new BrowsingContext(webConfiguration);
                     Context globalContext = new Context();
+                    CodeChannelWriter channelWriter = new CodeChannelWriter(originalMessage.PipelineNode.NodeGuid,
+                        Context.System.EventStream);
                     globalContext.Variables.Add("__browsingContext", browsingContext);
+                    globalContext.Variables.Add("__standardOut", channelWriter);
                     Sender.Tell(new InstanceStartedMessage());
                     WebDataModel model = blockWorkspace.Evaluate(globalContext) as WebDataModel;
-                    //Restore standard out
-                    //Console.SetOut(old);
 
                     PipelineInstanceResult result = new PipelineInstanceResult();
-                    PipelineRunRequest originalMessage = (PipelineRunRequest) r.AdditionalData;
                     result.IsSuccessful = true;
                     result.WebDataModel = model;
-                    result.SessionId = originalMessage.SessionId;
-                    if (originalMessage.ReturnCode)
-                    {
-
-                    }
+                    result.CodeGuid = originalMessage.PipelineNode.NodeGuid;
+                    result.ResultMessage = "Pipeline ran successfully";
 
                     base.Sender.Tell(new InstanceFinishedMessage(result));
                 }
@@ -77,7 +73,8 @@ namespace PurchaseForMe.Actors.WebPipeline
                     result.IsSuccessful = false;
                     result.WebDataModel = new WebDataModel();
                     result.WebDataModel.ModelData = errorObject;
-                    result.SessionId = originalMessage.SessionId;
+                    result.CodeGuid = originalMessage.PipelineNode.NodeGuid;
+                    result.ResultMessage = "Pipeline ran with error(s).";
                     Sender.Tell(new InstanceFinishedMessage(result));
                 }
                 finally

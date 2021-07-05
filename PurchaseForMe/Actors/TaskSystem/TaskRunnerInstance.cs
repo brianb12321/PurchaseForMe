@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Akka.Actor;
@@ -37,31 +38,27 @@ namespace PurchaseForMe.Actors.TaskSystem
                 try
                 {
                     ProjectInstance project = ((TaskStartMessage) message.AdditionalData).Project;
+                    TaskStartMessage startMessage = (TaskStartMessage)message.AdditionalData;
                     Workspace blockWorkspace = blockParser.Parse(message.WorkspaceXml);
-
-                    //Redirect standard out to SignalR channel--Selenium logs to standard out.
-                    //TextWriter old = Console.Out;
-                    //SignalRTextWriter newWriter = new SignalRTextWriter(Clients.Caller);
-                    //Console.SetOut(newWriter);
 
                     //Setup variables; setup Selenium
                     Context rootContext = new Context();
+                    CodeChannelWriter channelWriter =
+                        new CodeChannelWriter(startMessage.TaskNode.NodeGuid, Context.System.EventStream);
+                    rootContext.Variables.Add("__standardOut", channelWriter);
                     rootContext.Variables.Add("__currentProject", project);
                     rootContext.Variables.Add("__pipelineSchedulingBus", pipelineBus());
                     Sender.Tell(new InstanceStartedMessage());
                     blockWorkspace.Evaluate(rootContext);
-                    TaskStartMessage startMessage = (TaskStartMessage) message.AdditionalData;
                     TaskCompleted completed =
-                        new TaskCompleted(startMessage.SessionId, true, "Task completed successfully");
+                        new TaskCompleted(startMessage.TaskNode.NodeGuid, true, "Task completed successfully");
 
-                    //Restore standard out
-                    //Console.SetOut(old);
                     base.Sender.Tell(new InstanceFinishedMessage(completed));
                 }
                 catch (Exception e)
                 {
                     TaskStartMessage startMessage = (TaskStartMessage) message.AdditionalData;
-                    TaskCompleted completed = new TaskCompleted(startMessage.SessionId, true,
+                    TaskCompleted completed = new TaskCompleted(startMessage.TaskNode.NodeGuid, false,
                         $"Task completed with error: {e.Message}");
                     Sender.Tell(new InstanceFinishedMessage(completed));
                 }

@@ -10,7 +10,7 @@ namespace PurchaseForMe.Core.Code.Runner
     {
         public object RequestMessage { get; }
 
-        public NoRunnerAvailableMessage(object requestMessage)
+        public NoRunnerAvailableMessage(object requestMessage, Guid codeGuid)
         {
             RequestMessage = requestMessage;
         }

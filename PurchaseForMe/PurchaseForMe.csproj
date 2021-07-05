@@ -26,8 +26,9 @@
     <None Remove="src\initTaskConsole.ts" />
     <None Remove="src\initWorkspace.ts" />
     <None Remove="src\SignalRPipelineRunner.ts" />
+    <None Remove="src\signalR\ICodeRequest.ts" />
+    <None Remove="src\signalR\SignalRCodeRunner.ts" />
     <None Remove="src\signalR\SignalRRunner.ts" />
-    <None Remove="src\signalR\SignalRTaskRunner.ts" />
     <None Remove="src\WebConsole.ts" />
   </ItemGroup>
 
@@ -81,9 +82,9 @@
     <TypeScriptCompile Include="src\AceEditor.ts" />
     <TypeScriptCompile Include="src\initTaskConsole.ts" />
     <TypeScriptCompile Include="src\initWorkspace.ts" />
-    <TypeScriptCompile Include="src\signalR\SignalRPipelineRunner.ts" />
+    <TypeScriptCompile Include="src\signalR\ICodeRequest.ts" />
     <TypeScriptCompile Include="src\signalR\SignalRRunner.ts" />
-    <TypeScriptCompile Include="src\signalR\SignalRTaskRunner.ts" />
+    <TypeScriptCompile Include="src\signalR\SignalRCodeRunner.ts" />
     <TypeScriptCompile Include="src\WebConsole.ts" />
   </ItemGroup>
 
@@ -91,6 +92,12 @@
     <Compile Update="Areas\Project\Pages\EditTask - Copy.cshtml.cs">
       <DependentUpon>EditTask.cshtml.cs</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\css\xterm.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

@@ -21,8 +21,8 @@ namespace PurchaseForMe.Blocks.Pipeline
             IActorRef pipelineSchedulingBus = (IActorRef)globalContext.Variables["__pipelineSchedulingBus"];
             PipelineRunRequest request = new PipelineRunRequest();
             ProjectInstance project = (ProjectInstance)globalContext.Variables["__currentProject"];
-            request.WorkspaceXml = ((BlocklyPipelineNode)project.ProjectItems.First(i =>
-                i.NodeType == NodeType.BlocklyPipeline && ((BlocklyPipelineNode) i).CodeName == pipelineCodeName)).BlocklyWorkspace.InnerXml;
+            request.PipelineNode = ((BlocklyPipelineNode)project.ProjectItems.First(i =>
+                i.NodeType == NodeType.BlocklyPipeline && ((BlocklyPipelineNode) i).CodeName == pipelineCodeName));
 
             PipelineInstanceResult result = pipelineSchedulingBus.Ask<PipelineInstanceResult>(request).GetAwaiter().GetResult();
             return result.WebDataModel;

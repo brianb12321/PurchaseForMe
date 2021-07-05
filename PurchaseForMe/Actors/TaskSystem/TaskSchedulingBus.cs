@@ -23,11 +23,11 @@ namespace PurchaseForMe.Actors.TaskSystem
             }
             Receive<ScheduleTaskImmediatelyMessage>(message =>
             {
-                var runner = SendMessageToOpenRunner(new RunnerStartMessage(message.WorkspaceXml, message), Sender);
+                var runner = SendMessageToOpenRunner(new RunnerStartMessage(message.TaskNode.BlocklyWorkspace.InnerXml, message), Sender);
                 if (runner == null)
                 {
                     _logger.LogInformation("No runners available.");
-                    Sender.Tell(new NoRunnerAvailableMessage(message));
+                    Sender.Tell(new NoRunnerAvailableMessage(message, message.TaskNode.NodeGuid));
                 }
                 else
                 {

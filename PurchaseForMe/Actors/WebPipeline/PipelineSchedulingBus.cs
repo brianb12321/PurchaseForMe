@@ -27,11 +27,11 @@ namespace PurchaseForMe.Actors.WebPipeline
 
             Receive<PipelineRunRequest>(message =>
             {
-                var runner = SendMessageToOpenRunner(new RunnerStartMessage(message.WorkspaceXml, message), Sender);
+                var runner = SendMessageToOpenRunner(new RunnerStartMessage(message.PipelineNode.BlocklyWorkspace.InnerXml, message), Sender);
                 if (runner == null)
                 {
                     _logger.LogInformation("No runners available.");
-                    Sender.Tell(new NoRunnerAvailableMessage(message));
+                    Sender.Tell(new NoRunnerAvailableMessage(message, message.PipelineNode.NodeGuid));
                 }
                 else
                 {

@@ -10,6 +10,7 @@ using IronBlock.Blocks.Math;
 using IronBlock.Blocks.Text;
 using IronBlock.Blocks.Variables;
 using PurchaseForMe.Blocks.Lists;
+using PurchaseForMe.Blocks.Text;
 
 namespace PurchaseForMe
 {
@@ -45,7 +46,7 @@ namespace PurchaseForMe
             parser.AddBlock<MathRandomInt>("math_random_int");
 
             parser.AddBlock<TextBlock>("text");
-            parser.AddBlock<TextPrint>("text_print");
+            parser.AddBlock<PrintExBlock>("text_print");
             parser.AddBlock<TextPrompt>("text_prompt_ext");
             parser.AddBlock<TextLength>("text_length");
             parser.AddBlock<TextIsEmpty>("text_isEmpty");

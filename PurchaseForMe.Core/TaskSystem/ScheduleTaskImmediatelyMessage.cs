@@ -1,17 +1,15 @@
 ﻿using System;
 using PurchaseForMe.Core.Project;
+using PurchaseForMe.Core.Project.Nodes.Blockly;
 
 namespace PurchaseForMe.Core.TaskSystem
 {
     public class ScheduleTaskImmediatelyMessage : TaskStartMessage
     {
-        public string WorkspaceXml { get; }
-
-        public ScheduleTaskImmediatelyMessage(string workspaceXml, ProjectInstance project)
+        public ScheduleTaskImmediatelyMessage(BlocklyTaskNode taskNode, ProjectInstance project)
         {
-            WorkspaceXml = workspaceXml;
+            TaskNode = taskNode;
             Project = project;
-            SessionId = Guid.NewGuid();
         }
     }
 }

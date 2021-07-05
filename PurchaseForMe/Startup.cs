@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PurchaseForMe.Actors;
 using PurchaseForMe.Actors.Project;
 using PurchaseForMe.Actors.TaskSystem;
 using PurchaseForMe.Actors.User;
@@ -75,23 +76,15 @@ akka {
                     "taskSchedulingBus");
                 return () => taskBus;
             });
-            services.AddSingleton<WebPipelineSignalRActorFactory>(provider =>
+            services.AddSingleton<CodeMonitorSignalRFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
-                var hubContext = provider.GetRequiredService<IHubContext<PipelineRunnerHub>>();
-                var pipelineSchedulingBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
-                IActorRef signalR =
-                    actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineSchedulingBus), "webPipelineSignalR");
-                return () => signalR;
-            });
-            services.AddSingleton<TaskSchedulingSignalRFactory>(provider =>
-            {
-                var actorSystem = provider.GetRequiredService<ActorSystem>();
-                var hubContext = provider.GetRequiredService<IHubContext<TaskRunnerHub>>();
+                var hubContext = provider.GetRequiredService<IHubContext<CodeMonitorHub>>();
                 var taskSchedulingBus = provider.GetRequiredService<TaskSchedulingBusFactory>();
+                var pipelineSchedulingBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
                 var projectManager = provider.GetRequiredService<ProjectManagerFactory>();
                 IActorRef signalR =
-                    actorSystem.ActorOf(Props.Create(() => new TaskSchedulingSignalR(hubContext, taskSchedulingBus, projectManager)), "taskRunnerSignalR");
+                    actorSystem.ActorOf(Props.Create(() => new CodeMonitorSignalR(hubContext, taskSchedulingBus, pipelineSchedulingBus, projectManager)), "codeMonitoringSignalR");
                 return () => signalR;
             });
             services.AddSingleton<UserManagerActorFactory>(provider =>
@@ -140,8 +133,7 @@ akka {
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
-                endpoints.MapHub<PipelineRunnerHub>("/pipelineRunner");
-                endpoints.MapHub<TaskRunnerHub>("/taskRunner");
+                endpoints.MapHub<CodeMonitorHub>("/codeMonitoring");
             });
 
             lifetime.ApplicationStarted.Register(() => app.ApplicationServices.GetRequiredService<ActorSystem>());

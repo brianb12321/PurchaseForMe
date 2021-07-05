@@ -10,9 +10,8 @@ import { WebConsole } from './WebConsole';
 import { registerCreateObjectBlock } from './customBlocks/createObjectBlock';
 import { registerTimerBlocks } from './customBlocks/timerBlocks';
 import { registerObjectBlocks } from './customBlocks/objectBlocks';
-import { SignalRRunner } from './signalR/SignalRRunner';
-import { SignalRPipelineRunner } from './signalR/SignalRPipelineRunner';
-import { SignalRTaskRunner } from './signalR/SignalRTaskRunner';
+import { SignalRCodeRunner } from './signalR/SignalRCodeRunner';
+import { ICodeRequest } from './signalR/ICodeRequest';
 
 let xmlEditor: AceEditor;
 let webConsole: WebConsole;
@@ -115,42 +114,20 @@ export function initWorkspace() {
     $("#runButton").click((evt) => {
         evt.preventDefault();
         var xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
-        var runPipelineRequest = {
-            WorkspaceXML: xml,
-            ReturnCode: true
+        var codeRequest: ICodeRequest = {
+            ProjectGuid: projectGuid.toString(),
+            NodeGuid: nodeGuid.toString(),
+            UserId: userId.toString()
         };
-        let connection: SignalRRunner;
-        if (runnerToConnect === "PipelineRunner") {
-            connection = new SignalRPipelineRunner(webConsole);
-            connection.url = "/pipelineRunner";
-        }
-        else if (runnerToConnect === "TaskRunner") {
-            connection = new SignalRTaskRunner(webConsole);
-            connection.url = "/taskRunner";
-        }
+        let connection: SignalRCodeRunner = new SignalRCodeRunner(webConsole);
+        connection.url = "/codeMonitoring";
         connection.setup();
         connection.onConnectedEvent = () => {
-            if (runnerToConnect === "PipelineRunner") {
-                if (connection.connection.state === signalR.HubConnectionState.Connected) {
-                    connection.connection.send("RunPipelineBlockly", JSON.stringify(runPipelineRequest))
-                        .then(() => {
-                            webConsole.writeLine("Message sent.");
-                            $("#runButton").prop("disabled", true);
-                        })
-                        .catch((error) => {
-                            webConsole.writeLine(`An error occurred while sending a message: ${error}`);
-                        });
-                } else {
-                    webConsole.writeLine("Cannot run pipeline; a connection to a pipeline runner has not been established.");
-                }
-            }
-            else if (runnerToConnect === "TaskRunner") {
-                var taskRequest = {
-                    ProjectGuid: projectGuid,
-                    NodeGuid: nodeGuid,
-                    UserId: userId
-                };
-                (connection as SignalRTaskRunner).runTask(taskRequest);
+            if (connection.connection.state === signalR.HubConnectionState.Connected) {
+                connection.registerToCodeMonitor(nodeGuid.toString());
+                connection.runCode(codeRequest);
+            } else {
+                webConsole.writeLine("Cannot run code; a connection to the code-monitor has not been established.");
             }
         }
         connection.connect();

@@ -1,6 +1,6 @@
 ﻿import { WebConsole } from "./WebConsole";
-import { SignalRTaskRunner } from "./signalR/SignalRTaskRunner";
-import { connect } from "tls";
+import { SignalRCodeRunner } from "./signalR/SignalRCodeRunner";
+import { ICodeRequest } from "./signalR/ICodeRequest";
 
 let taskConsole: WebConsole = new WebConsole();
 
@@ -9,16 +9,19 @@ $("#runButton").click(event => {
     var projectGuid = $("#ProjectGuid").val();
     var nodeGuid = $("#TaskGuid").val();
     var userId = $("#UserId").val();
-    var taskRequest = {
-        ProjectGuid: projectGuid,
-        NodeGuid: nodeGuid,
-        UserId: userId
+    var taskRequest: ICodeRequest = {
+        ProjectGuid: projectGuid.toString(),
+        NodeGuid: nodeGuid.toString(),
+        UserId: userId.toString()
     }
-    var connection = new SignalRTaskRunner(taskConsole);
-    connection.url = "/taskRunner";
+    var connection = new SignalRCodeRunner(taskConsole);
+    connection.url = "/codeMonitoring";
     connection.setup();
     connection.connect();
-    connection.onConnectedEvent = () => connection.runTask(taskRequest);
+    connection.onConnectedEvent = () => {
+        connection.registerToCodeMonitor(nodeGuid.toString());
+        connection.runCode(taskRequest);
+    };
 });
 
 taskConsole.initialize();

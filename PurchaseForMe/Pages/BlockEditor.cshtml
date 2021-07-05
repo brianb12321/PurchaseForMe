@@ -6,7 +6,12 @@
     ViewData["NodeName"] = Model.NodeName;
 }
 @section Styles {
+    <link rel="stylesheet" href="~/css/xterm.css" />
     <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+        }
         .container-fluid {
             padding: 0;
         }
@@ -16,54 +21,14 @@
             width: 100%;
         }
 
-        #console {
-            position: absolute;
-            width: 100%;
-            height: 480px;
-            background-color: black;
-        }
-        /* The inner console element. */
-        .jqconsole {
-            padding: 10px;
-        }
-        /* The cursor. */
-        .jqconsole-cursor {
-            background-color: white;
-        }
-        /* The cursor color when the console looses focus. */
-        .jqconsole-blurred .jqconsole-cursor {
-            background-color: #666;
-        }
-        /* The current prompt text color */
-        .jqconsole-prompt {
-            color: #0d0;
-        }
-        /* The command history */
-        .jqconsole-old-prompt {
-            color: #0b0;
-            font-weight: normal;
-        }
-        /* The text color when in input mode. */
-        .jqconsole-input {
-            color: #dd0;
-        }
-        /* Previously entered input. */
-        .jqconsole-old-input {
-            color: #bb0;
-            font-weight: normal;
-        }
-        /* The text color of the output. */
-        .jqconsole-output {
-            color: white;
-        }
         #blockly-editor {
             width: 100%;
             height: 960px;
         }
+
         #xmlEditor {
             display: none;
         }
-
     </style>
 }
 
@@ -71,7 +36,9 @@
     <div id="blockly-editor" class="col"></div>
     <div id="xmlEditor" class="col"></div>
 </div>
-<div id="console"></div>
+<div class="console-container">
+    <div id="console"></div>
+</div>
 
 @functions
 {
@@ -86,9 +53,9 @@
     <script src="~/js/blockly.bundle.min.js"></script>
 }
 
-@Html.Raw(Model.ToolkitXml);
+@Html.Raw(Model.ToolkitXml)
 @Html.HiddenFor(m => m.ProjectGuid)
 @Html.HiddenFor(m => m.NodeGuid)
 @Html.HiddenFor(m => m.WorkspaceXml)
 @Html.HiddenFor(m => m.RunnerToConnect)
-@Html.HiddenFor(m => m.UserId);
+@Html.HiddenFor(m => m.UserId)

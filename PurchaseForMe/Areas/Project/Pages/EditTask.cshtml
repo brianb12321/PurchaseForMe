@@ -4,48 +4,7 @@
 @{
 }
 @section Styles {
-    <style>
-        #console {
-            position: absolute;
-            width: 95%;
-            height: 500px;
-            background-color: black;
-        }
-        /* The inner console element. */
-        .jqconsole {
-            padding: 10px;
-        }
-        /* The cursor. */
-        .jqconsole-cursor {
-            background-color: white;
-        }
-        /* The cursor color when the console looses focus. */
-        .jqconsole-blurred .jqconsole-cursor {
-            background-color: #666;
-        }
-        /* The current prompt text color */
-        .jqconsole-prompt {
-            color: #0d0;
-        }
-        /* The command history */
-        .jqconsole-old-prompt {
-            color: #0b0;
-            font-weight: normal;
-        }
-        /* The text color when in input mode. */
-        .jqconsole-input {
-            color: #dd0;
-        }
-        /* Previously entered input. */
-        .jqconsole-old-input {
-            color: #bb0;
-            font-weight: normal;
-        }
-        /* The text color of the output. */
-        .jqconsole-output {
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/xterm.css" />
 }
 
 <h1>Editing task @Model.Form.TaskName</h1>
@@ -77,7 +36,9 @@
     </form>
 </div>
 <div class="tab-pane tree-tab-content" id="taskConsole" role="tabpanel" aria-labelledby="taskConsole-tab">
-    <div id="console"></div>
+    <div class="console-container">
+        <div id="console"></div>
+    </div>
 </div>
 
 @Html.HiddenFor(m => m.ProjectGuid);

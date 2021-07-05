@@ -1,17 +1,23 @@
-﻿import 'jq-console';
+﻿import { Terminal } from "xterm";
+import { FitAddon } from "xterm-addon-fit";
 
 export class WebConsole {
-    console: any;
+    console: Terminal;
     public initialize() {
-        this.console = ($('#console') as any).jqconsole("Console ready\n", ">>>", "", true);
+        this.console = new Terminal();
+        let fitAddon = new FitAddon();
+        this.console.loadAddon(fitAddon);
+        this.console.open(document.querySelector("#console"));
+        fitAddon.fit();
+        window.onresize = () => fitAddon.fit();
     }
     public write(message: string) {
-        this.console.Write(message, "jqconsole-output");
+        this.console.write(message);
     }
     public writeLine(message: string) {
-        this.write(message + "\n");
+        this.write(message + "\r\n");
     }
     public clear() {
-        this.console.Clear();
+        this.console.clear();
     }
 }
