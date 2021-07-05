@@ -374,24 +374,15 @@
         </shadow>
       </value>
     </block>
-    <block type="web_openDriver">
-      <field name="driverType">Chrome</field>
-      <value name="url">
-        <shadow type="text">
-          <field name="TEXT">https://google.com</field>
-        </shadow>
-      </value>
-    </block>
     <block type="web_getElementDetail"></block>
-    <block type="web_sendKey">
+    <block type="web_clickElement"></block>
+    <!--<block type="web_sendKey">
       <value name="keyString">
         <shadow type="text">
           <field name="TEXT"></field>
         </shadow>
       </value>
-    </block>
-    <block type="web_clickElement"></block>
-    <block type="web_maximizeWindow"></block>
+    </block>-->
     <block type="web_getElementAttribute">
       <value name="attributeName">
         <shadow type="text">

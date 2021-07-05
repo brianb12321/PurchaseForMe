@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IronBlock;
+﻿using IronBlock;
 using IronBlock.Blocks;
 using OpenQA.Selenium;
 
-namespace PurchaseForMe.Blocks.Web
+namespace PurchaseForMe.Blocks.Web.Selenium
 {
-    [RegisterBlock("web_navigateUrl")]
+    [RegisterBlock("web_navigateUrl", Category = "Selenium")]
     public class NavigateUrlBlock : IBlock
     {
         public override object Evaluate(Context context)

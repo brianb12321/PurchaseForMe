@@ -4,6 +4,8 @@ using System.Reflection;
 using Akka.Actor;
 using IronBlock;
 using IronBlock.Blocks;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using PurchaseForMe.Actors.WebPipeline;
 using PurchaseForMe.Blocks;
 using PurchaseForMe.Core.Code.Instance;
@@ -26,7 +28,7 @@ namespace PurchaseForMe.Actors.TaskSystem
                 foreach (Type type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract))
                 {
                     RegisterBlockAttribute block = type.GetCustomAttribute<RegisterBlockAttribute>();
-                    if (block != null)
+                    if (block != null && (block.Category is "All" or "Selenium"))
                     {
                         blockParser.AddBlock(block.BlockName, () => (IBlock)Activator.CreateInstance(type));
                     }
@@ -34,20 +36,23 @@ namespace PurchaseForMe.Actors.TaskSystem
 
                 try
                 {
-                    ProjectInstance project = ((TaskStartMessage)message.AdditionalData).Project;
+                    ProjectInstance project = ((TaskStartMessage) message.AdditionalData).Project;
                     Workspace blockWorkspace = blockParser.Parse(message.WorkspaceXml);
 
                     //Redirect standard out to SignalR channel--Selenium logs to standard out.
                     //TextWriter old = Console.Out;
                     //SignalRTextWriter newWriter = new SignalRTextWriter(Clients.Caller);
                     //Console.SetOut(newWriter);
-                    Sender.Tell(new InstanceStartedMessage());
+
+                    //Setup variables; setup Selenium
                     Context rootContext = new Context();
                     rootContext.Variables.Add("__currentProject", project);
                     rootContext.Variables.Add("__pipelineSchedulingBus", pipelineBus());
+                    Sender.Tell(new InstanceStartedMessage());
                     blockWorkspace.Evaluate(rootContext);
                     TaskStartMessage startMessage = (TaskStartMessage) message.AdditionalData;
-                    TaskCompleted completed = new TaskCompleted(startMessage.SessionId, true, "Task completed successfully");
+                    TaskCompleted completed =
+                        new TaskCompleted(startMessage.SessionId, true, "Task completed successfully");
 
                     //Restore standard out
                     //Console.SetOut(old);
@@ -55,8 +60,9 @@ namespace PurchaseForMe.Actors.TaskSystem
                 }
                 catch (Exception e)
                 {
-                    TaskStartMessage startMessage = (TaskStartMessage)message.AdditionalData;
-                    TaskCompleted completed = new TaskCompleted(startMessage.SessionId, true, $"Task completed with error: {e.Message}");
+                    TaskStartMessage startMessage = (TaskStartMessage) message.AdditionalData;
+                    TaskCompleted completed = new TaskCompleted(startMessage.SessionId, true,
+                        $"Task completed with error: {e.Message}");
                     Sender.Tell(new InstanceFinishedMessage(completed));
                 }
             });

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IronBlock;
+﻿using IronBlock;
 using IronBlock.Blocks;
 using OpenQA.Selenium;
 
-namespace PurchaseForMe.Blocks.Web
+namespace PurchaseForMe.Blocks.Web.Selenium
 {
-    [RegisterBlock("web_sendKey")]
+    [RegisterBlock("web_sendKey", Category = "Selenium")]
     public class SendKeyBlock : IBlock
     {
         public override object Evaluate(Context context)

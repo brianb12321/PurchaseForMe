@@ -9,6 +9,7 @@ namespace PurchaseForMe.Blocks
     public class RegisterBlockAttribute : Attribute
     {
         public string BlockName { get; }
+        public string Category { get; set; } = "All";
 
         public RegisterBlockAttribute(string blockName)
         {

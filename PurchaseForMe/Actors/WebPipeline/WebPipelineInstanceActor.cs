@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Akka.Actor;
+using AngleSharp;
 using IronBlock;
 using IronBlock.Blocks;
 using PurchaseForMe.Blocks;
@@ -24,12 +25,13 @@ namespace PurchaseForMe.Actors.WebPipeline
                 foreach (Type type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract))
                 {
                     RegisterBlockAttribute block = type.GetCustomAttribute<RegisterBlockAttribute>();
-                    if (block != null)
+                    if (block != null && (block.Category is "All" or "AngleSharp"))
                     {
                         blockParser.AddBlock(block.BlockName, () => (IBlock)Activator.CreateInstance(type));
                     }
                 }
 
+                IBrowsingContext browsingContext = null;
                 try
                 {
                     Workspace blockWorkspace = blockParser.Parse(r.WorkspaceXml);
@@ -38,8 +40,17 @@ namespace PurchaseForMe.Actors.WebPipeline
                     //TextWriter old = Console.Out;
                     //SignalRTextWriter newWriter = new SignalRTextWriter(Clients.Caller);
                     //Console.SetOut(newWriter);
+
+                    //Setup variables
+                    IConfiguration webConfiguration = AngleSharp.Configuration.Default
+                        .WithDefaultLoader()
+                        .WithDefaultCookies();
+
+                    browsingContext = new BrowsingContext(webConfiguration);
+                    Context globalContext = new Context();
+                    globalContext.Variables.Add("__browsingContext", browsingContext);
                     Sender.Tell(new InstanceStartedMessage());
-                    WebDataModel model = blockWorkspace.Evaluate() as WebDataModel;
+                    WebDataModel model = blockWorkspace.Evaluate(globalContext) as WebDataModel;
                     //Restore standard out
                     //Console.SetOut(old);
 
@@ -50,8 +61,9 @@ namespace PurchaseForMe.Actors.WebPipeline
                     result.SessionId = originalMessage.SessionId;
                     if (originalMessage.ReturnCode)
                     {
-                        
+
                     }
+
                     base.Sender.Tell(new InstanceFinishedMessage(result));
                 }
                 catch (Exception e)
@@ -61,12 +73,16 @@ namespace PurchaseForMe.Actors.WebPipeline
                         ErrorMessage = e.Message
                     };
                     PipelineInstanceResult result = new PipelineInstanceResult();
-                    PipelineRunRequest originalMessage = (PipelineRunRequest)r.AdditionalData;
+                    PipelineRunRequest originalMessage = (PipelineRunRequest) r.AdditionalData;
                     result.IsSuccessful = false;
                     result.WebDataModel = new WebDataModel();
                     result.WebDataModel.ModelData = errorObject;
                     result.SessionId = originalMessage.SessionId;
                     Sender.Tell(new InstanceFinishedMessage(result));
+                }
+                finally
+                {
+                    browsingContext?.Dispose();
                 }
             });
         }

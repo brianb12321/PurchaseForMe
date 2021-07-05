@@ -1,21 +1,13 @@
 ﻿using System;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using IronBlock;
 using IronBlock.Blocks;
 using OpenQA.Selenium;
 
-namespace PurchaseForMe.Blocks.Web
+namespace PurchaseForMe.Blocks.Web.Selenium
 {
-    [RegisterBlock("web_getElementDetail")]
+    [RegisterBlock("web_getElementDetail", Category = "Selenium")]
     public class GetElementDetailBlock : IBlock
     {
-        public enum ElementInformationType
-        {
-            InnerHtml, InnerText
-        }
         public override object Evaluate(Context context)
         {
             ElementInformationType infoType = Enum.Parse<ElementInformationType>(this.Fields.Get("informationType"));

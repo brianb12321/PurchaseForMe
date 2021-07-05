@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using IronBlock;
 using IronBlock.Blocks;
 using OpenQA.Selenium;
 
-namespace PurchaseForMe.Blocks.Web
+namespace PurchaseForMe.Blocks.Web.Selenium
 {
-    [RegisterBlock("web_getSubElements")]
-    public class GetSubElementBlock : IBlock
+    [RegisterBlock("web_getElement", Category = "Selenium")]
+    public class GetElementBlock : IBlock
     {
         public override object Evaluate(Context context)
         {
@@ -28,23 +25,27 @@ namespace PurchaseForMe.Blocks.Web
             {
                 rootElement = (IWebDriver)context.GetRootContext().Variables["__driver"];
             }
-            IWebElement[] elements = null;
+            IWebElement element = null;
             switch (type)
             {
                 case ElementType.Class:
-                    elements = rootElement.FindElements(By.ClassName(name)).ToArray();
+                    element = rootElement.FindElement(By.ClassName(name));
                     break;
                 case ElementType.Id:
-                    elements = rootElement.FindElements(By.Id(name)).ToArray();
+                    element = rootElement.FindElement(By.Id(name));
                     break;
                 case ElementType.Name:
-                    elements = rootElement.FindElements(By.Name(name)).ToArray();
+                    element = rootElement.FindElement(By.Name(name));
                     break;
                 case ElementType.TagName:
-                    elements = rootElement.FindElements(By.TagName(name)).ToArray();
+                    element = rootElement.FindElement(By.TagName(name));
+                    break;
+                case ElementType.CssSelector:
+                    element = rootElement.FindElement(By.CssSelector(name));
                     break;
             }
-            return elements;
+
+            return element;
         }
     }
 }

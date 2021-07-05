@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IronBlock;
 using IronBlock.Blocks;
 using Newtonsoft.Json.Linq;
+using PurchaseForMe.Core.WebPipeline;
 
 namespace PurchaseForMe.Blocks.Pipeline
 {
@@ -17,7 +18,18 @@ namespace PurchaseForMe.Blocks.Pipeline
             //Person.age [Person, age]
             string[] graph = Values.Evaluate("propertyName", context).ToString().Split(".");
             dynamic obj = Values.Evaluate("object", context);
-            IDictionary<string, Object> objDictionary = (IDictionary<string, Object>)obj;
+            IDictionary<string, Object> objDictionary;
+            if (obj is WebDataModel)
+            {
+                WebDataModel dataModel = obj as WebDataModel;
+                objDictionary = new Dictionary<string, object>();
+                objDictionary.Add(nameof(dataModel.ModelData), dataModel.ModelData);
+            }
+            else
+            {
+                objDictionary = (IDictionary<string, Object>)obj;
+            }
+            
             return traverseObjectGraph(objDictionary, 0, graph);
         }
 

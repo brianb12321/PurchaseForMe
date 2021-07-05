@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using IronBlock;
 using IronBlock.Blocks;
 using OpenQA.Selenium;
 
-namespace PurchaseForMe.Blocks.Web
+namespace PurchaseForMe.Blocks.Web.Selenium
 {
-    public enum ElementType
-    {
-        Id, Class, Name, TagName, CssSelector
-    }
-
-    [RegisterBlock("web_getElement")]
-    public class GetElementBlock : IBlock
+    [RegisterBlock("web_getSubElements", Category = "Selenium")]
+    public class GetSubElementBlock : IBlock
     {
         public override object Evaluate(Context context)
         {
@@ -33,27 +26,23 @@ namespace PurchaseForMe.Blocks.Web
             {
                 rootElement = (IWebDriver)context.GetRootContext().Variables["__driver"];
             }
-            IWebElement element = null;
+            IWebElement[] elements = null;
             switch (type)
             {
                 case ElementType.Class:
-                    element = rootElement.FindElement(By.ClassName(name));
+                    elements = rootElement.FindElements(By.ClassName(name)).ToArray();
                     break;
                 case ElementType.Id:
-                    element = rootElement.FindElement(By.Id(name));
+                    elements = rootElement.FindElements(By.Id(name)).ToArray();
                     break;
                 case ElementType.Name:
-                    element = rootElement.FindElement(By.Name(name));
+                    elements = rootElement.FindElements(By.Name(name)).ToArray();
                     break;
                 case ElementType.TagName:
-                    element = rootElement.FindElement(By.TagName(name));
-                    break;
-                case ElementType.CssSelector:
-                    element = rootElement.FindElement(By.CssSelector(name));
+                    elements = rootElement.FindElements(By.TagName(name)).ToArray();
                     break;
             }
-
-            return element;
+            return elements;
         }
     }
 }

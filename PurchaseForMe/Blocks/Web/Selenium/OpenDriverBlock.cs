@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using IronBlock;
 using IronBlock.Blocks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace PurchaseForMe.Blocks.Web
+namespace PurchaseForMe.Blocks.Web.Selenium
 {
-    [RegisterBlock("web_openDriver")]
+    [RegisterBlock("web_openDriver", Category = "Selenium")]
     public class OpenDriverBlock : IBlock
     {
         public enum DriverType
@@ -28,7 +25,7 @@ namespace PurchaseForMe.Blocks.Web
             }
             catch (ArgumentException)
             {
-                
+
             }
             IWebDriver driver = null;
             try
