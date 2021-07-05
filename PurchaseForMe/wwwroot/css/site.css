@@ -106,6 +106,6 @@ ul, #projectTree {
 }
 
 /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
-.active {
+.tab-active {
     display: block;
 }

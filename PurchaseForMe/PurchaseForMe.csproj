@@ -23,7 +23,11 @@
     <None Remove="src\customBlocks\PipelineBlocks.ts" />
     <None Remove="src\customBlocks\timerBlocks.ts" />
     <None Remove="src\customBlocks\WebBlocks.ts" />
+    <None Remove="src\initTaskConsole.ts" />
     <None Remove="src\initWorkspace.ts" />
+    <None Remove="src\SignalRPipelineRunner.ts" />
+    <None Remove="src\signalR\SignalRRunner.ts" />
+    <None Remove="src\signalR\SignalRTaskRunner.ts" />
     <None Remove="src\WebConsole.ts" />
   </ItemGroup>
 
@@ -59,6 +63,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Identity\" />
+    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -74,7 +79,11 @@
     <TypeScriptCompile Include="src\customBlocks\timerBlocks.ts" />
     <TypeScriptCompile Include="src\customBlocks\webBlocks.ts" />
     <TypeScriptCompile Include="src\AceEditor.ts" />
+    <TypeScriptCompile Include="src\initTaskConsole.ts" />
     <TypeScriptCompile Include="src\initWorkspace.ts" />
+    <TypeScriptCompile Include="src\signalR\SignalRPipelineRunner.ts" />
+    <TypeScriptCompile Include="src\signalR\SignalRRunner.ts" />
+    <TypeScriptCompile Include="src\signalR\SignalRTaskRunner.ts" />
     <TypeScriptCompile Include="src\WebConsole.ts" />
   </ItemGroup>
 
@@ -82,12 +91,6 @@
     <Compile Update="Areas\Project\Pages\EditTask - Copy.cshtml.cs">
       <DependentUpon>EditTask.cshtml.cs</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="wwwroot\js\bundle.min.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Akka.Actor;
 using PurchaseForMe.Actors.WebPipeline;
 using PurchaseForMe.Core.Code.Instance;
@@ -7,15 +8,19 @@ using PurchaseForMe.Core.TaskSystem.TaskRunner;
 
 namespace PurchaseForMe.Actors
 {
-    public class CodeRunner : ReceiveActor
+    public class CodeRunner<TInstanceActor> : ReceiveActor where TInstanceActor : ActorBase
     {
         public int RunnerId { get; }
         private readonly IActorRef _taskSchedulingBus;
         private IActorRef _pipelineInstance;
         private IActorRef _callingActor;
-        public CodeRunner(int runnerId, IActorRef taskSchedulingBus)
+        private Func<object[]> _parameterProvider;
+        private string _runnerInstanceName;
+        public CodeRunner(int runnerId, IActorRef taskSchedulingBus, Func<object[]> parameterProvider, string runnerInstanceName)
         {
             RunnerId = runnerId;
+            _runnerInstanceName = runnerInstanceName;
+            _parameterProvider = parameterProvider;
             _taskSchedulingBus = taskSchedulingBus;
             Become(NormalState);
         }
@@ -24,8 +29,8 @@ namespace PurchaseForMe.Actors
         {
             Receive<RunnerStartMessage>(message =>
             {
-                _pipelineInstance = Context.ActorOf(Props.Create(() => new WebPipelineInstanceActor(message.WorkspaceXml)), "pipelineInstance");
-                _pipelineInstance.Tell(new InstanceStartMessage(message.AdditionalData), Self);
+                _pipelineInstance = Context.ActorOf(Props.Create<TInstanceActor>(_parameterProvider()), _runnerInstanceName);
+                _pipelineInstance.Tell(new InstanceStartMessage(message.WorkspaceXml, message.AdditionalData), Self);
                 _callingActor = Sender;
                 Become(RunningState);
             });

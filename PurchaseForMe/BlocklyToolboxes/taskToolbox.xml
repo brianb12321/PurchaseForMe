@@ -355,6 +355,15 @@
       </value>
     </block>
   </category>
+  <category name="Pipeline" colour="#335bc2">
+    <block type="pipeline_runPipeline">
+      <value name="pipelineCodeName">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
+  </category>
   <category name="Web" colour="#995ba5">
     <block type="web_getElement">
       <value name="elementName">

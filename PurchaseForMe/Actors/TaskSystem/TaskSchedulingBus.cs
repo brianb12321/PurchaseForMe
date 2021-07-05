@@ -2,6 +2,7 @@
 using System.Linq;
 using Akka.Actor;
 using Microsoft.Extensions.Logging;
+using PurchaseForMe.Actors.WebPipeline;
 using PurchaseForMe.Core.Code.Runner;
 using PurchaseForMe.Core.TaskSystem;
 using PurchaseForMe.Core.TaskSystem.TaskRunner;
@@ -12,12 +13,12 @@ namespace PurchaseForMe.Actors.TaskSystem
     public class TaskSchedulingBus : SchedulingBus
     {
         private readonly ILogger<TaskSchedulingBus> _logger;
-        public TaskSchedulingBus(ILogger<TaskSchedulingBus> logger)
+        public TaskSchedulingBus(ILogger<TaskSchedulingBus> logger, PipelineSchedulingBusFactory pipelineBus)
         {
             _logger = logger;
-            for (int i = 1; i <= 5; i++)
+            for (int i = 0; i < 5; i++)
             {
-                IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner(i, Self)), $"taskRunner-{i}");
+                IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner<TaskRunnerInstance>(i, Self, () => new object[] {pipelineBus}, "taskInstance")), $"taskRunner-{i}");
                 RunnerInstances.Add(new RunnerInfo(taskRunner, i));
             }
             Receive<ScheduleTaskImmediatelyMessage>(message =>
@@ -42,6 +43,7 @@ namespace PurchaseForMe.Actors.TaskSystem
             {
                 var runner = RunnerInstances[message.RunnerId];
                 runner.IsRunning = false;
+                runner.CallingActor.Tell((TaskCompleted)message.Result);
                 runner.CallingActor = null;
                 //If any messages were stashed, un-stash now.
                 Stash.Unstash();

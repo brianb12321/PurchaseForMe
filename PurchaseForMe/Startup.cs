@@ -70,7 +70,8 @@ akka {
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
                 ILogger<TaskSchedulingBus> logger = provider.GetService<ILogger<TaskSchedulingBus>>();
-                IActorRef taskBus = actorSystem.ActorOf(Props.Create(() => new TaskSchedulingBus(logger)),
+                PipelineSchedulingBusFactory pipelineBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
+                IActorRef taskBus = actorSystem.ActorOf(Props.Create(() => new TaskSchedulingBus(logger, pipelineBus)),
                     "taskSchedulingBus");
                 return () => taskBus;
             });
@@ -80,7 +81,17 @@ akka {
                 var hubContext = provider.GetRequiredService<IHubContext<PipelineRunnerHub>>();
                 var pipelineSchedulingBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
                 IActorRef signalR =
-                    actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineSchedulingBus), "signalR");
+                    actorSystem.ActorOf(Props.Create<WebPipelineSignalRActor>(hubContext, pipelineSchedulingBus), "webPipelineSignalR");
+                return () => signalR;
+            });
+            services.AddSingleton<TaskSchedulingSignalRFactory>(provider =>
+            {
+                var actorSystem = provider.GetRequiredService<ActorSystem>();
+                var hubContext = provider.GetRequiredService<IHubContext<TaskRunnerHub>>();
+                var taskSchedulingBus = provider.GetRequiredService<TaskSchedulingBusFactory>();
+                var projectManager = provider.GetRequiredService<ProjectManagerFactory>();
+                IActorRef signalR =
+                    actorSystem.ActorOf(Props.Create(() => new TaskSchedulingSignalR(hubContext, taskSchedulingBus, projectManager)), "taskRunnerSignalR");
                 return () => signalR;
             });
             services.AddSingleton<UserManagerActorFactory>(provider =>
@@ -130,6 +141,7 @@ akka {
             {
                 endpoints.MapRazorPages();
                 endpoints.MapHub<PipelineRunnerHub>("/pipelineRunner");
+                endpoints.MapHub<TaskRunnerHub>("/taskRunner");
             });
 
             lifetime.ApplicationStarted.Register(() => app.ApplicationServices.GetRequiredService<ActorSystem>());

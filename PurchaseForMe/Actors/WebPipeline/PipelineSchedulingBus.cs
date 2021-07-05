@@ -20,7 +20,8 @@ namespace PurchaseForMe.Actors.WebPipeline
             _logger = logger;
             for (int i = 0; i < 5; i++)
             {
-                IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner(i, Self)), $"webPipelineRunner-{i}");
+                IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner<WebPipelineInstanceActor>(i, Self,
+                    () => new Object[] {}, "pipelineInstance")), $"webPipelineRunner-{i}");
                 RunnerInstances.Add(new RunnerInfo(taskRunner, i));
             }
 

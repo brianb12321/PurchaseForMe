@@ -22,6 +22,8 @@ namespace PurchaseForMe.Areas.Project.Pages
 
         [BindProperty]
         public string PipelineName { get; set; }
+        [BindProperty]
+        public string PipelineCodeName { get; set; }
 
         private readonly IActorRef _projectManager;
 
@@ -38,7 +40,7 @@ namespace PurchaseForMe.Areas.Project.Pages
                 GetProjectMessage message = new GetProjectMessage(Guid.Parse(ProjectGuid), userId);
                 GetProjectResponseMessage response = await _projectManager.Ask<GetProjectResponseMessage>(message);
 
-                response.Project.ProjectItems.Add(new BlocklyPipelineNode() { NodeName = PipelineName });
+                response.Project.ProjectItems.Add(new BlocklyPipelineNode() { NodeName = PipelineName, CodeName = PipelineCodeName});
                 _projectManager.Tell(new SaveProjectMessage(response.Project.ProjectGuid, userId));
                 return RedirectToPage("Project", new { ProjectGuid = ProjectGuid });
             }

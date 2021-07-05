@@ -13,10 +13,8 @@ namespace PurchaseForMe.Actors.WebPipeline
 {
     public class WebPipelineInstanceActor : ReceiveActor
     {
-        public string WorkspaceXml { get; }
-        public WebPipelineInstanceActor(string workspaceXml)
+        public WebPipelineInstanceActor()
         {
-            WorkspaceXml = workspaceXml;
             Receive<InstanceStartMessage>(r =>
             {
                 Parser blockParser = new Parser();
@@ -34,7 +32,7 @@ namespace PurchaseForMe.Actors.WebPipeline
 
                 try
                 {
-                    Workspace blockWorkspace = blockParser.Parse(WorkspaceXml);
+                    Workspace blockWorkspace = blockParser.Parse(r.WorkspaceXml);
 
                     //Redirect standard out to SignalR channel--Selenium logs to standard out.
                     //TextWriter old = Console.Out;

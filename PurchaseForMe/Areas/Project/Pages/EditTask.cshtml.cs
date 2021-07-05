@@ -28,6 +28,7 @@ namespace PurchaseForMe.Areas.Project.Pages
         public string TaskGuid { get; set; }
         [BindProperty]
         public EditTaskFormModel Form { get; set; }
+        public string UserId { get; set; }
 
         private readonly IActorRef _projectManager;
         private BlocklyTaskNode _taskObject;
@@ -45,6 +46,7 @@ namespace PurchaseForMe.Areas.Project.Pages
             _taskObject = (BlocklyTaskNode)project.ProjectItems.First(t => t.NodeGuid.Equals(taskGuid));
             Form = new EditTaskFormModel();
             Form.TaskName = _taskObject.NodeName;
+            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return Page();
         }
     }

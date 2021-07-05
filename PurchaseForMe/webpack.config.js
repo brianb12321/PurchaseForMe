@@ -4,10 +4,11 @@ module.exports = {
     devtool: "source-map",
     mode: "development",
     entry: {
-        all: './src/_build/initWorkspace.js'
+        blockly: './src/_build/initWorkspace.js',
+        taskConsole: './src/_build/initTaskConsole.js'
     },
     output: {
-        filename: 'bundle.min.js',
+        filename: '[name].bundle.min.js',
         path: path.resolve(__dirname, 'wwwroot/js')
     }
 };

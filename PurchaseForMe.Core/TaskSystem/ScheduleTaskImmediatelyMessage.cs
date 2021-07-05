@@ -1,12 +1,17 @@
-﻿namespace PurchaseForMe.Core.TaskSystem
+﻿using System;
+using PurchaseForMe.Core.Project;
+
+namespace PurchaseForMe.Core.TaskSystem
 {
-    public class ScheduleTaskImmediatelyMessage
+    public class ScheduleTaskImmediatelyMessage : TaskStartMessage
     {
         public string WorkspaceXml { get; }
 
-        public ScheduleTaskImmediatelyMessage(string workspaceXml)
+        public ScheduleTaskImmediatelyMessage(string workspaceXml, ProjectInstance project)
         {
             WorkspaceXml = workspaceXml;
+            Project = project;
+            SessionId = Guid.NewGuid();
         }
     }
 }

@@ -41,4 +41,16 @@ export function registerPipelineBlocks() {
                 .setCheck("Object");
         }
     }
+    Blockly.Blocks["pipeline_runPipeline"] = {
+        init: function () {
+            let block = this as Blockly.Block;
+            block.setTooltip(
+                "Runs the specified pipeline using any available pipeline runner. Any pipeline scheduling bus will be used whether locally or remote.");
+            block.setOutput(true, "WebDataModel");
+            block.setColour(30);
+            block.setInputsInline(true);
+            block.appendValueInput("pipelineCodeName")
+                .appendField("Run pipeline");
+        }
+    }
 }

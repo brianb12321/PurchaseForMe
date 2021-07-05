@@ -20,6 +20,7 @@ namespace PurchaseForMe.Areas.Project.Pages
         public class EditPipelineFormModel
         {
             public string PipelineName { get; set; }
+            public string PipelineCodeName { get; set; }
         }
 
         [BindProperty(SupportsGet = true)]
@@ -45,6 +46,7 @@ namespace PurchaseForMe.Areas.Project.Pages
             _pipelineObject = (BlocklyPipelineNode)project.ProjectItems.First(t => t.NodeGuid.Equals(taskGuid));
             Form = new EditPipelineFormModel();
             Form.PipelineName = _pipelineObject.NodeName;
+            Form.PipelineCodeName = _pipelineObject.CodeName;
             return Page();
         }
     }

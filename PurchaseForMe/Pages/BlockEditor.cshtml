@@ -83,11 +83,12 @@
 
 @section Scripts {
     <script src="https://pagecdn.io/lib/ace/1.4.12/ace.min.js"></script>
-    <script src="~/js/bundle.min.js"></script>
+    <script src="~/js/blockly.bundle.min.js"></script>
 }
 
 @Html.Raw(Model.ToolkitXml);
 @Html.HiddenFor(m => m.ProjectGuid)
 @Html.HiddenFor(m => m.NodeGuid)
 @Html.HiddenFor(m => m.WorkspaceXml)
-@Html.HiddenFor(m => m.CreateNew)
+@Html.HiddenFor(m => m.RunnerToConnect)
+@Html.HiddenFor(m => m.UserId);

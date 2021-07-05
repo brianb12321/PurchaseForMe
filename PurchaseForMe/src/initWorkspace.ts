@@ -10,6 +10,9 @@ import { WebConsole } from './WebConsole';
 import { registerCreateObjectBlock } from './customBlocks/createObjectBlock';
 import { registerTimerBlocks } from './customBlocks/timerBlocks';
 import { registerObjectBlocks } from './customBlocks/objectBlocks';
+import { SignalRRunner } from './signalR/SignalRRunner';
+import { SignalRPipelineRunner } from './signalR/SignalRPipelineRunner';
+import { SignalRTaskRunner } from './signalR/SignalRTaskRunner';
 
 let xmlEditor: AceEditor;
 let webConsole: WebConsole;
@@ -27,36 +30,6 @@ export function addBlocks() {
     registerCreateObjectBlock();
     registerTimerBlocks();
 }
-export function setupConnection(): signalR.HubConnection {
-    //Open SignalR connection
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/pipelineRunner")
-        .build();
-
-    connection.on("Result",
-        (result) => {
-            $("#runButton").prop("disabled", false);
-            let resultJson: any = JSON.parse(result);
-            if (resultJson.IsSuccessful) {
-                webConsole.writeLine("Pipeline ran successfully.");
-            } else {
-                webConsole.writeLine("Pipeline returned with error.");
-            }
-            webConsole.writeLine(result);
-        });
-    connection.on("Console",
-        result => {
-            webConsole.write(result);
-        });
-    connection.start()
-        .then(() => {
-            webConsole.writeLine("Connection established with pipeline runner.");
-        })
-        .catch(error => webConsole.writeLine(
-            `An error occurred while establishing a connection to the pipeline runner: ${error}`));
-
-    return connection;
-}
 
 addBlocks();
 
@@ -65,11 +38,12 @@ export function initWorkspace() {
     document.querySelector(".navbar").classList.remove("mb-3");
     //https://developers.google.com/blockly/guides/configure/web/resizable
 
-    var createNew = $("#CreateNew").val();
-    var workspaceXml: string;
-    if (createNew === "False") {
-        workspaceXml = $("#WorkspaceXml").val() as string;
-    }
+    const workspaceXml = $("#WorkspaceXml").val() as string;
+    const projectGuid = $("#ProjectGuid").val();
+    const nodeGuid = $("#NodeGuid").val();
+    const userId = $("#UserId").val();
+    const runnerToConnect = $("#RunnerToConnect").val();
+
     var blocklyDiv = document.getElementById('blockly-editor');
     workspace = Blockly.inject(blocklyDiv,
         {
@@ -100,24 +74,16 @@ export function initWorkspace() {
         }
     });
 
-    const connection = setupConnection();
-
     $("#saveButton").click(evt => {
         var token = $('input[name="__RequestVerificationToken"]', form).val();
         var form = $('#__AjaxAntiForgeryForm');
         evt.preventDefault();
         var xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
-        var createNew = $("#CreateNew").val();
-        var projectGuid = $("#ProjectGuid").val();
-
         var body: any = {
             WorkspaceXml: xml,
             ProjectGuid: projectGuid,
-            CreateNew: createNew,
-            NodeName: $("#NodeName").val()
-        }
-        if (createNew === "False") {
-            body.NodeGuid = $("#NodeGuid").val();
+            NodeName: $("#NodeName").val(),
+            NodeGuid: nodeGuid,
         }
         $.ajax({
             type: "POST",
@@ -143,6 +109,9 @@ export function initWorkspace() {
     });
 
     //Setup run button
+    if (runnerToConnect === "TaskRunner") {
+        $("#runButton").html("Run task immediately");
+    }
     $("#runButton").click((evt) => {
         evt.preventDefault();
         var xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
@@ -150,19 +119,41 @@ export function initWorkspace() {
             WorkspaceXML: xml,
             ReturnCode: true
         };
-
-        if (connection.state === signalR.HubConnectionState.Connected) {
-            connection.send("RunPipelineBlockly", JSON.stringify(runPipelineRequest))
-                .then(() => {
-                    webConsole.writeLine("Message sent.");
-                    $("#runButton").prop("disabled", true);
-                })
-                .catch((error) => {
-                    webConsole.writeLine(`An error occurred while sending a message: ${error}`);
-                });
-        } else {
-            webConsole.writeLine("Cannot run pipeline; a connection to a pipeline runner has not been established.");
+        let connection: SignalRRunner;
+        if (runnerToConnect === "PipelineRunner") {
+            connection = new SignalRPipelineRunner(webConsole);
+            connection.url = "/pipelineRunner";
         }
+        else if (runnerToConnect === "TaskRunner") {
+            connection = new SignalRTaskRunner(webConsole);
+            connection.url = "/taskRunner";
+        }
+        connection.setup();
+        connection.onConnectedEvent = () => {
+            if (runnerToConnect === "PipelineRunner") {
+                if (connection.connection.state === signalR.HubConnectionState.Connected) {
+                    connection.connection.send("RunPipelineBlockly", JSON.stringify(runPipelineRequest))
+                        .then(() => {
+                            webConsole.writeLine("Message sent.");
+                            $("#runButton").prop("disabled", true);
+                        })
+                        .catch((error) => {
+                            webConsole.writeLine(`An error occurred while sending a message: ${error}`);
+                        });
+                } else {
+                    webConsole.writeLine("Cannot run pipeline; a connection to a pipeline runner has not been established.");
+                }
+            }
+            else if (runnerToConnect === "TaskRunner") {
+                var taskRequest = {
+                    ProjectGuid: projectGuid,
+                    NodeGuid: nodeGuid,
+                    UserId: userId
+                };
+                (connection as SignalRTaskRunner).runTask(taskRequest);
+            }
+        }
+        connection.connect();
     });
     //Setup toggle XML button
     $("#toggleXmlButton").text("Show XML");

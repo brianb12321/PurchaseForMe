@@ -4,18 +4,19 @@ using System.Reflection;
 using Akka.Actor;
 using IronBlock;
 using IronBlock.Blocks;
+using PurchaseForMe.Actors.WebPipeline;
 using PurchaseForMe.Blocks;
 using PurchaseForMe.Core.Code.Instance;
+using PurchaseForMe.Core.Project;
+using PurchaseForMe.Core.TaskSystem;
 using PurchaseForMe.Core.WebPipeline;
 
 namespace PurchaseForMe.Actors.TaskSystem
 {
     public class TaskRunnerInstance : ReceiveActor
     {
-        public string WorkspaceXml { get; }
-        public TaskRunnerInstance(string workspaceXml)
+        public TaskRunnerInstance(PipelineSchedulingBusFactory pipelineBus)
         {
-            WorkspaceXml = workspaceXml;
             Receive<InstanceStartMessage>(message =>
             {
                 Parser blockParser = new Parser();
@@ -33,21 +34,30 @@ namespace PurchaseForMe.Actors.TaskSystem
 
                 try
                 {
-                    Workspace blockWorkspace = blockParser.Parse(WorkspaceXml);
+                    ProjectInstance project = ((TaskStartMessage)message.AdditionalData).Project;
+                    Workspace blockWorkspace = blockParser.Parse(message.WorkspaceXml);
 
                     //Redirect standard out to SignalR channel--Selenium logs to standard out.
                     //TextWriter old = Console.Out;
                     //SignalRTextWriter newWriter = new SignalRTextWriter(Clients.Caller);
                     //Console.SetOut(newWriter);
                     Sender.Tell(new InstanceStartedMessage());
-                    blockWorkspace.Evaluate();
+                    Context rootContext = new Context();
+                    rootContext.Variables.Add("__currentProject", project);
+                    rootContext.Variables.Add("__pipelineSchedulingBus", pipelineBus());
+                    blockWorkspace.Evaluate(rootContext);
+                    TaskStartMessage startMessage = (TaskStartMessage) message.AdditionalData;
+                    TaskCompleted completed = new TaskCompleted(startMessage.SessionId, true, "Task completed successfully");
+
                     //Restore standard out
                     //Console.SetOut(old);
-                    base.Sender.Tell(new InstanceFinishedMessage(null));
+                    base.Sender.Tell(new InstanceFinishedMessage(completed));
                 }
                 catch (Exception e)
                 {
-                    Sender.Tell(new InstanceFinishedMessage(null));
+                    TaskStartMessage startMessage = (TaskStartMessage)message.AdditionalData;
+                    TaskCompleted completed = new TaskCompleted(startMessage.SessionId, true, $"Task completed with error: {e.Message}");
+                    Sender.Tell(new InstanceFinishedMessage(completed));
                 }
             });
         }

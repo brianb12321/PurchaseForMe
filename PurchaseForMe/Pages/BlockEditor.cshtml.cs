@@ -27,8 +27,9 @@ namespace PurchaseForMe.Pages
         public string NodeGuid { get; set; }
         public string NodeName { get; set; }
         public string ToolkitXml { get; set; }
-        public bool CreateNew { get; set; }
         public string WorkspaceXml { get; set; }
+        public string RunnerToConnect { get; set; }
+        public string UserId { get; set; }
 
         private readonly IActorRef _projectManager;
 
@@ -41,42 +42,36 @@ namespace PurchaseForMe.Pages
         {
             var projectGuid = Guid.Parse(ProjectGuid);
             ProjectInstance project = (await _projectManager.Ask<GetProjectResponseMessage>(new GetProjectMessage(projectGuid, User.FindFirstValue(ClaimTypes.NameIdentifier)))).Project;
-            if (!string.IsNullOrEmpty(NodeGuid))
+            ProjectNode node = project[Guid.Parse(NodeGuid)];
+            var blocklyNode = node as BlocklyNode;
+            if (blocklyNode.BlocklyWorkspace == null)
             {
-                ProjectNode node = project[Guid.Parse(NodeGuid)];
-                var blocklyNode = node as BlocklyNode;
-                if (blocklyNode.BlocklyWorkspace == null)
-                {
-                    blocklyNode.BlocklyWorkspace = new XmlDocument();
-                    if (blocklyNode.NodeType == NodeType.BlocklyPipeline)
-                    {
-                        blocklyNode.BlocklyWorkspace.LoadXml("<xml><block type=\"pipeline_pipelineBody\" deletable=\"false\" movable=\"false\"><value name=\"webDataModel\"><block type=\"pipeline_createWebModel\"></block></value></block></xml>");
-                    }
-                    else
-                    {
-                        blocklyNode.BlocklyWorkspace.LoadXml("<xml></xml>");
-                    }
-                }
-                WorkspaceXml = blocklyNode.BlocklyWorkspace.InnerXml;
-                NodeName = blocklyNode.NodeName;
+                blocklyNode.BlocklyWorkspace = new XmlDocument();
                 if (blocklyNode.NodeType == NodeType.BlocklyPipeline)
                 {
-                    ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/pipelineToolbox.xml");
-                    return Page();
+                    blocklyNode.BlocklyWorkspace.LoadXml("<xml><block type=\"pipeline_pipelineBody\" deletable=\"false\" movable=\"false\"><value name=\"webDataModel\"><block type=\"pipeline_createWebModel\"></block></value></block></xml>");
                 }
-                else if (blocklyNode.NodeType == NodeType.BlocklyTask)
+                else
                 {
-                    ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/taskToolbox.xml");
+                    blocklyNode.BlocklyWorkspace.LoadXml("<xml></xml>");
                 }
-                else return NotFound();
             }
-            else
+            WorkspaceXml = blocklyNode.BlocklyWorkspace.InnerXml;
+            NodeName = blocklyNode.NodeName;
+            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (blocklyNode.NodeType == NodeType.BlocklyPipeline)
             {
+                RunnerToConnect = "PipelineRunner";
                 ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/pipelineToolbox.xml");
-                NodeName = "Test Pipeline";
-                CreateNew = true;
+                return Page();
             }
-            return Page();
+            else if (blocklyNode.NodeType == NodeType.BlocklyTask)
+            {
+                RunnerToConnect = "TaskRunner";
+                ToolkitXml = await System.IO.File.ReadAllTextAsync("blocklyToolboxes/taskToolbox.xml");
+                return Page();
+            }
+            else return NotFound();
         }
 
         public async Task<IActionResult> OnPostAsync()
