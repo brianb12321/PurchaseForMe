@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>dotnet-PurchaseForMeService-CC7C5419-0D1A-43EC-9C82-0EAC1F566D64</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="akkaconf.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="akkaconf.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Akka" Version="1.4.21" />
+    <PackageReference Include="Akka.Cluster" Version="1.4.21" />
+    <PackageReference Include="AngleSharp" Version="0.16.0" />
+    <PackageReference Include="IronBlock" Version="1.0.16" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="91.0.4472.10100" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PurchaseForMe.Core\PurchaseForMe.Core.csproj" />
+  </ItemGroup>
+</Project>

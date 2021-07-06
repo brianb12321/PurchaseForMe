@@ -1,20 +1,16 @@
 using System;
 using System.Dynamic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Xml;
 using Akka.Actor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PurchaseForMe.Actors.Project;
+using PurchaseForMe.Core;
 using PurchaseForMe.Core.Project;
-using PurchaseForMe.Core.Project.Nodes;
 using PurchaseForMe.Core.Project.Nodes.Blockly;
 
 namespace PurchaseForMe.Pages

@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="akkaconf.txt" />
     <None Remove="BlocklyToolboxes\pipelineToolbox.xml" />
     <None Remove="BlocklyToolboxes\taskToolbox.xml" />
     <None Remove="src\AceEditor.ts" />
@@ -33,6 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="akkaconf.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="BlocklyToolboxes\taskToolbox.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -43,10 +47,9 @@
 
   <ItemGroup>
     <PackageReference Include="Akka" Version="1.4.21" />
+    <PackageReference Include="Akka.Cluster" Version="1.4.21" />
     <PackageReference Include="Akka.DependencyInjection" Version="1.4.21" />
-    <PackageReference Include="AngleSharp" Version="0.16.0" />
     <PackageReference Include="Hocon.Configuration" Version="2.0.3" />
-    <PackageReference Include="IronBlock" Version="1.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.7" />
@@ -58,8 +61,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
-    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="91.0.4472.10100" />
   </ItemGroup>
 
   <ItemGroup>

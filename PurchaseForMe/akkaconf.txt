@@ -1,0 +1,25 @@
+﻿akka {
+    actor.provider = cluster
+    remote {
+        dot-netty.tcp {
+            port = 0 #let os pick random port
+            hostname = localhost
+        }
+    }
+    cluster {
+        seed-nodes = ["akka.tcp://purchaseForMe@localhost:8081"]
+        roles = ["Web", "User", "Project"]
+    }
+    stdout-loglevel = DEBUG
+    loglevel = DEBUG
+    log-config-on-start = on
+    actor {
+        debug {
+            receive = on
+            autoreceive = on
+            lifecycle = on
+            event-stream = on
+            unhandled = on
+        }
+    }
+}

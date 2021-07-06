@@ -1,3 +1,7 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -7,19 +11,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PurchaseForMe.Data;
 using Akka.Actor;
+using Akka.Actor.Dsl;
+using Akka.Cluster;
+using Akka.Cluster.Routing;
 using Akka.Configuration;
+using Akka.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PurchaseForMe.Actors;
-using PurchaseForMe.Actors.Project;
-using PurchaseForMe.Actors.TaskSystem;
-using PurchaseForMe.Actors.User;
-using PurchaseForMe.Actors.WebPipeline;
-using PurchaseForMe.Configuration;
+using PurchaseForMe.Core;
+using PurchaseForMe.Core.Configuration;
 using PurchaseForMe.Core.User;
 using PurchaseForMe.Hubs;
+using PurchaseForMe.Project;
+using PurchaseForMeService.Actors.User;
 
 namespace PurchaseForMe
 {
@@ -44,49 +50,27 @@ namespace PurchaseForMe
             services.AddRazorPages();
             services.AddSignalR();
             services.AddHttpContextAccessor();
-            services.AddSingleton<ActorSystem>(provider => ActorSystem.Create("purchaseForMe", ConfigurationFactory.ParseString(@"
-akka {  
-    stdout-loglevel = DEBUG
-    loglevel = DEBUG
-    log-config-on-start = on        
-    actor {                
-        debug {  
-              receive = on 
-              autoreceive = on
-              lifecycle = on
-              event-stream = on
-              unhandled = on
-        }
-    }  
-")));
-            
+            services.AddSingleton<ActorSystem>(provider => ActorSystem.Create("purchaseForMe", ConfigurationFactory.ParseString(File.ReadAllText("akkaconf.txt"))));
+
             services.AddSingleton<PipelineSchedulingBusFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
-                ILogger<PipelineSchedulingBus> logger = provider.GetService<ILogger<PipelineSchedulingBus>>();
-                IActorRef pipelineBus = actorSystem.ActorOf(Props.Create(() => new PipelineSchedulingBus(logger)), "pipelineSchedulingBus");
-                return () => pipelineBus;
+                ClusterRouterGroupSettings groupSettings =
+                    new ClusterRouterGroupSettings(1000, new[] {"/user/pipelineSchedulingBus"}, false, "Pipeline");
+                var pipelineSchedulingBusRouter =
+                    actorSystem.ActorOf(Props.Empty.WithRouter(new ClusterRouterGroup(new RoundRobinGroup(), groupSettings)), "pipelineSchedulingBusRouter");
+                return () => pipelineSchedulingBusRouter;
             });
             services.AddSingleton<TaskSchedulingBusFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
-                ILogger<TaskSchedulingBus> logger = provider.GetService<ILogger<TaskSchedulingBus>>();
-                PipelineSchedulingBusFactory pipelineBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
-                IActorRef taskBus = actorSystem.ActorOf(Props.Create(() => new TaskSchedulingBus(logger, pipelineBus)),
-                    "taskSchedulingBus");
-                return () => taskBus;
+                ClusterRouterGroupSettings groupSettings =
+                    new ClusterRouterGroupSettings(1000, new[] { "/user/taskSchedulingBus" }, false, "Task");
+                var taskSchedulingBusRouter =
+                    actorSystem.ActorOf(Props.Empty.WithRouter(new ClusterRouterGroup(new RoundRobinGroup(), groupSettings)), "taskSchedulingBusRouter");
+                return () => taskSchedulingBusRouter;
             });
-            services.AddSingleton<CodeMonitorSignalRFactory>(provider =>
-            {
-                var actorSystem = provider.GetRequiredService<ActorSystem>();
-                var hubContext = provider.GetRequiredService<IHubContext<CodeMonitorHub>>();
-                var taskSchedulingBus = provider.GetRequiredService<TaskSchedulingBusFactory>();
-                var pipelineSchedulingBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
-                var projectManager = provider.GetRequiredService<ProjectManagerFactory>();
-                IActorRef signalR =
-                    actorSystem.ActorOf(Props.Create(() => new CodeMonitorSignalR(hubContext, taskSchedulingBus, pipelineSchedulingBus, projectManager)), "codeMonitoringSignalR");
-                return () => signalR;
-            });
+
             services.AddSingleton<UserManagerActorFactory>(provider =>
             {
                 var actorSystem = provider.GetRequiredService<ActorSystem>();
@@ -104,6 +88,17 @@ akka {
                     provider.GetService<IOptions<ProjectSettings>>(),
                     provider.GetService<UserManagerActorFactory>())), "projectManager");
                 return () => projectManager;
+            });
+            services.AddSingleton<CodeMonitorSignalRFactory>(provider =>
+            {
+                var actorSystem = provider.GetRequiredService<ActorSystem>();
+                var hubContext = provider.GetRequiredService<IHubContext<CodeMonitorHub>>();
+                var taskSchedulingBus = provider.GetRequiredService<TaskSchedulingBusFactory>();
+                var pipelineSchedulingBus = provider.GetRequiredService<PipelineSchedulingBusFactory>();
+                var projectManager = provider.GetRequiredService<ProjectManagerFactory>();
+                IActorRef codeMonitorSignalR = actorSystem.ActorOf(Props.Create(() =>
+                    new CodeMonitorSignalR(hubContext, taskSchedulingBus, pipelineSchedulingBus, projectManager)));
+                return () => codeMonitorSignalR;
             });
         }
 

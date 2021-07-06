@@ -4,7 +4,7 @@ using Akka.Actor;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using PurchaseForMe.Actors;
+using PurchaseForMe.Core;
 using PurchaseForMe.Core.TaskMonitoring;
 
 namespace PurchaseForMe.Hubs

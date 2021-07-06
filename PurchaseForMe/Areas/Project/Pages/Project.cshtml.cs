@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Akka.Actor;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using PurchaseForMe.Actors.Project;
+using PurchaseForMe.Core;
 using PurchaseForMe.Core.Project;
 
 namespace PurchaseForMe.Areas.Project.Pages
