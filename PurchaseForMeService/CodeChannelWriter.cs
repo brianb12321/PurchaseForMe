@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.IO;
 using System.Text;
 using Akka.Event;
 using PurchaseForMe.Core.TaskMonitoring;
 
-namespace PurchaseForMe
+namespace PurchaseForMeService
 {
     class CodeChannelWriter : TextWriter
     {

@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Dom;
+using HtmlAgilityPack;
 using IronBlock;
 using IronBlock.Blocks;
 
@@ -10,8 +11,8 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
         public override object Evaluate(Context context)
         {
             string attributeName = (string)Values.Evaluate("attributeName", context);
-            IElement element = (IElement)Values.Evaluate("element", context);
-            return element.GetAttribute(attributeName);
+            HtmlNode element = (HtmlNode)Values.Evaluate("element", context);
+            return element.GetAttributeValue(attributeName, "undefined");
         }
     }
 }

@@ -1,0 +1,30 @@
+{
+  "name": "purchase-for-me-web",
+  "version": "1.0.0",
+  "description": "A customizable web-scraping, crawling, and purchasing bot",
+  "main": "gulpfile.js",
+  "scripts": {
+    "tsc": "tsc",
+    "webpack": "webpack",
+    "gulp": "gulp",
+    "build": "npm run tsc && npm run webpack"
+  },
+  "author": "Brian Barnes",
+  "license": "ISC",
+  "dependencies": {
+    "@blockly/theme-dark": "^2.0.0",
+    "@microsoft/signalr": "^5.0.7",
+    "@types/node": "^15.12.4",
+    "ace-builds": "git+https://github.com/ajaxorg/ace-builds.git#v1.4.12",
+    "blockly": "^5.20210325.1",
+    "gulp": "^4.0.2",
+    "jq-console": "^2.13.2",
+    "webpack": "^5.40.0",
+    "xterm": "^4.13.0",
+    "xterm-addon-fit": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.5",
+    "webpack-cli": "^4.7.2"
+  }
+}

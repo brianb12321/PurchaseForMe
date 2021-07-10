@@ -55,7 +55,7 @@ namespace PurchaseForMeService.Actors.TaskSystem
                 {
                     TaskStartMessage startMessage = (TaskStartMessage) message.AdditionalData;
                     TaskCompleted completed = new TaskCompleted(startMessage.TaskNode.NodeGuid, false,
-                        $"Task completed with error: {e.Message}");
+                        $"Task completed with error: {e.ToString()}");
                     Sender.Tell(new InstanceFinishedMessage(completed));
                 }
             });

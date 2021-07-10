@@ -8,6 +8,7 @@ using PurchaseForMe;
 using PurchaseForMe.Core.Code.Instance;
 using PurchaseForMe.Core.WebPipeline;
 using PurchaseForMeService.Blocks;
+using ScrapySharp.Network;
 
 namespace PurchaseForMeService.Actors.WebPipeline
 {
@@ -24,28 +25,30 @@ namespace PurchaseForMeService.Actors.WebPipeline
                 foreach (Type type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract))
                 {
                     RegisterBlockAttribute block = type.GetCustomAttribute<RegisterBlockAttribute>();
-                    if (block != null && (block.Category is "All" or "AngleSharp"))
+                    if (block != null && (block.Category is "All" or "Selenium"))
                     {
                         blockParser.AddBlock(block.BlockName, () => (IBlock)Activator.CreateInstance(type));
                     }
                 }
 
-                IBrowsingContext browsingContext = null;
+                //IBrowsingContext browsingContext = null;
+                ScrapingBrowser browser;
                 try
                 {
                     PipelineRunRequest originalMessage = (PipelineRunRequest)r.AdditionalData;
                     Workspace blockWorkspace = blockParser.Parse(r.WorkspaceXml);
-
+                    //browser = new ScrapingBrowser();
                     //Setup variables
-                    IConfiguration webConfiguration = AngleSharp.Configuration.Default
-                        .WithDefaultLoader()
-                        .WithDefaultCookies();
+                    //IConfiguration webConfiguration = AngleSharp.Configuration.Default
+                    //    .WithDefaultLoader()
+                    //    .WithJs()
+                    //    .WithDefaultCookies();
 
-                    browsingContext = new BrowsingContext(webConfiguration);
+                    //browsingContext = new BrowsingContext(webConfiguration);
                     Context globalContext = new Context();
                     CodeChannelWriter channelWriter = new CodeChannelWriter(originalMessage.PipelineNode.NodeGuid,
                         Context.System.EventStream);
-                    globalContext.Variables.Add("__browsingContext", browsingContext);
+                    //globalContext.Variables.Add("__browsingContext", browser);
                     globalContext.Variables.Add("__standardOut", channelWriter);
                     Sender.Tell(new InstanceStartedMessage());
                     WebDataModel model = blockWorkspace.Evaluate(globalContext) as WebDataModel;
@@ -75,7 +78,8 @@ namespace PurchaseForMeService.Actors.WebPipeline
                 }
                 finally
                 {
-                    browsingContext?.Dispose();
+                    //browser = null;
+                    //browsingContext?.Dispose();
                 }
             });
         }

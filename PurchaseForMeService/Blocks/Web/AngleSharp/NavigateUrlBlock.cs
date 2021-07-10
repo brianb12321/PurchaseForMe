@@ -1,7 +1,9 @@
-﻿using AngleSharp;
+﻿using System;
+using AngleSharp;
 using AngleSharp.Dom;
 using IronBlock;
 using IronBlock.Blocks;
+using ScrapySharp.Network;
 
 namespace PurchaseForMeService.Blocks.Web.AngleSharp
 {
@@ -12,14 +14,13 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
         {
             Context rootContext = context.GetRootContext();
             string url = Values.Evaluate("url", context).ToString();
-            IBrowsingContext browsingContext = (IBrowsingContext)rootContext.Variables["__browsingContext"];
+            ScrapingBrowser browsingContext = (ScrapingBrowser)rootContext.Variables["__browsingContext"];
             if (rootContext.Variables.ContainsKey("__currentWebPage"))
             {
-                IDocument document = (IDocument)rootContext.Variables["__currentWebPage"];
-                document.Dispose();
                 rootContext.Variables.Remove("__currentWebPage");
             }
-            IDocument newDocument = browsingContext.OpenAsync(url).GetAwaiter().GetResult();
+
+            WebPage newDocument = browsingContext.NavigateToPage(new Uri(url));
             rootContext.Variables.Add("__currentWebPage", newDocument);
             base.Evaluate(context);
             return null;

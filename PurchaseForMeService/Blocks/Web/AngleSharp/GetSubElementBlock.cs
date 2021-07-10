@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
 using AngleSharp.Dom;
+using HtmlAgilityPack;
 using IronBlock;
 using IronBlock.Blocks;
+using ScrapySharp.Extensions;
+using ScrapySharp.Network;
 
 namespace PurchaseForMeService.Blocks.Web.AngleSharp
 {
@@ -17,29 +20,29 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
             if (!context.GetRootContext().Variables.ContainsKey("__currentWebPage"))
                 throw new Exception("No webpage has been loaded yet.");
 
-            IElement rootElement;
+            HtmlNode rootElement;
             if (fromElement)
             {
-                rootElement = (IElement)Values.Evaluate("rootElement", context);
+                rootElement = (HtmlNode)Values.Evaluate("rootElement", context);
             }
             else
             {
-                IDocument currentPage = (IDocument)context.GetRootContext().Variables["__currentWebPage"];
-                rootElement = currentPage.DocumentElement;
+                WebPage currentPage = (WebPage)context.GetRootContext().Variables["__currentWebPage"];
+                rootElement = currentPage.Html;
             }
-            IElement[] elements = null;
+            HtmlNode[] elements = null;
             switch (type)
             {
                 case ElementType.Class:
-                    elements = rootElement.QuerySelectorAll($".{name}").ToArray();
+                    elements = rootElement.CssSelect($".{name}").ToArray();
                     break;
                 case ElementType.Id:
-                    elements = rootElement.QuerySelectorAll($"#{name}").ToArray();
+                    elements = rootElement.CssSelect($"#{name}").ToArray();
                     break;
                 case ElementType.Name:
                 case ElementType.TagName:
                 case ElementType.CssSelector:
-                    elements = rootElement.QuerySelectorAll(name).ToArray();
+                    elements = rootElement.CssSelect(name).ToArray();
                     break;
             }
             return elements;

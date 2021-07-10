@@ -1,4 +1,6 @@
-﻿using AngleSharp.Dom;
+﻿using System;
+using AngleSharp.Dom;
+using HtmlAgilityPack;
 using IronBlock;
 using IronBlock.Blocks;
 
@@ -9,10 +11,7 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
     {
         public override object Evaluate(Context context)
         {
-            IElement element = (IElement) Values.Evaluate("element", context);
-            element.FireSimpleEvent("click");
-            base.Evaluate(context);
-            return null;
+            throw new NotImplementedException();
         }
     }
 }

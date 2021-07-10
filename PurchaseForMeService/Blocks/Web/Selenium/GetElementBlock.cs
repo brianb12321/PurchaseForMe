@@ -43,6 +43,9 @@ namespace PurchaseForMeService.Blocks.Web.Selenium
                 case ElementType.CssSelector:
                     element = rootElement.FindElement(By.CssSelector(name));
                     break;
+                case ElementType.XPath:
+                    element = rootElement.FindElement(By.XPath(name));
+                    break;
             }
 
             return element;

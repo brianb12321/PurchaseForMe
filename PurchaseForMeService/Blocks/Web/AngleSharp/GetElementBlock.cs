@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Linq;
 using AngleSharp.Dom;
+using HtmlAgilityPack;
 using IronBlock;
 using IronBlock.Blocks;
+using ScrapySharp.Extensions;
+using ScrapySharp.Network;
 
 namespace PurchaseForMeService.Blocks.Web.AngleSharp
 {
@@ -18,29 +22,29 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
             if (!context.GetRootContext().Variables.ContainsKey("__currentWebPage"))
                 throw new Exception("No webpage has been loaded yet.");
 
-            IElement rootElement;
+            HtmlNode rootElement;
             if (fromElement)
             {
-                rootElement = (IElement)Values.Evaluate("rootElement", context);
+                rootElement = (HtmlNode)Values.Evaluate("rootElement", context);
             }
             else
             {
-                IDocument currentPage = (IDocument) context.GetRootContext().Variables["__currentWebPage"];
-                rootElement = currentPage.DocumentElement;
+                WebPage currentPage = (WebPage) context.GetRootContext().Variables["__currentWebPage"];
+                rootElement = currentPage.Html;
             } 
-            IElement element = null;
+            HtmlNode element = null;
             switch (type)
             {
                 case ElementType.Class:
-                    element = rootElement.QuerySelector($".{name}");
+                    element = rootElement.CssSelect($".{name}").First();
                     break;
                 case ElementType.Id:
-                    element = rootElement.QuerySelector($"#{name}");
+                    element = rootElement.CssSelect($"#{name}").First();
                     break;
                 case ElementType.Name:
                 case ElementType.TagName:
                 case ElementType.CssSelector:
-                    element = rootElement.QuerySelector(name);
+                    element = rootElement.CssSelect(name).First();
                     break;
             }
 

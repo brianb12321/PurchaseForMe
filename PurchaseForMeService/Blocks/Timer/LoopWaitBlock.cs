@@ -17,29 +17,31 @@ namespace PurchaseForMeService.Blocks.Timer
             TimeUnit timeUnit = (TimeUnit) Enum.Parse(typeof(TimeUnit), Fields.Get("waitDurationType"));
             double time = (double)Values.Evaluate("waitTime", context);
             IronBlock.Statement body = Statements.Get("loopBody");
+            TimeSpan timeSpan = TimeSpan.Zero; ;
+            switch (timeUnit)
+            {
+                case TimeUnit.Milliseconds:
+                    timeSpan = TimeSpan.FromMilliseconds(time);
+                    break;
+                case TimeUnit.Seconds:
+                    timeSpan = TimeSpan.FromSeconds(time);
+                    break;
+                case TimeUnit.Minutes:
+                    timeSpan = TimeSpan.FromMinutes(time);
+                    break;
+                case TimeUnit.Hours:
+                    timeSpan = TimeSpan.FromHours(time);
+                    break;
+                default:
+                    throw new ArgumentException($"{timeUnit} has not been handled.");
+            }
             while (context.EscapeMode != EscapeMode.Break)
             {
                 body.Evaluate(context);
-                TimeSpan timeSpan = TimeSpan.Zero;;
-                switch (timeUnit)
-                {
-                    case TimeUnit.Milliseconds:
-                        timeSpan = TimeSpan.FromMilliseconds(time);
-                        break;
-                    case TimeUnit.Seconds:
-                        timeSpan = TimeSpan.FromSeconds(time);
-                        break;
-                    case TimeUnit.Minutes:
-                        timeSpan = TimeSpan.FromMinutes(time);
-                        break;
-                    case TimeUnit.Hours:
-                        timeSpan = TimeSpan.FromHours(time);
-                        break;
-                    default:
-                        throw new ArgumentException($"{timeUnit} has not been handled.");
-                }
                 Thread.Sleep(timeSpan);
             }
+
+            context.EscapeMode = EscapeMode.None;
 
             base.Evaluate(context);
             return null;

@@ -388,6 +388,8 @@ FodyWeavers.xsd
 *.sln.iml
 
 node_modules/
-PurchaseForMe/src/_build/
-PurchaseForMe/wwwroot/lib/
-PurchaseForMe/wwwroot/js/bundle.min*
+PurchaseForMeWeb/src/_build/
+PurchaseForMeWeb/wwwroot/lib/
+PurchaseForMeWeb/wwwroot/js/blockly.bundle.min*
+PurchaseForMeWeb/wwwroot/js/taskConsole.bundle.min*
+docker-compose.yaml

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using PurchaseForMe.Core.Code;
 
 namespace PurchaseForMeService.Actors
 {
@@ -27,6 +28,12 @@ namespace PurchaseForMeService.Actors
         protected SchedulingBus()
         {
             RunnerInstances = new List<RunnerInfo>();
+            Receive<GetRunnerStatisticsMessage>(message =>
+            {
+                int numberRunning = RunnerInstances.Count(runner => runner.IsRunning);
+                int numberAvailable = RunnerInstances.Count(runner => runner.IsRunning != true);
+                Sender.Tell(new GetRunnerStatisticsResponseMessage(numberAvailable, numberAvailable));
+            });
         }
 
         protected RunnerInfo SendMessageToOpenRunner(object message, IActorRef callingActor)

@@ -15,7 +15,7 @@ namespace PurchaseForMeService.Blocks.Error
             {
                 tryStatement.Evaluate(context);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 catchStatement.Evaluate(context);
             }

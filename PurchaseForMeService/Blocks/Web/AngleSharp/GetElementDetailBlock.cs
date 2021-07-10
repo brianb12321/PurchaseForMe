@@ -1,5 +1,6 @@
 ﻿using System;
 using AngleSharp.Dom;
+using HtmlAgilityPack;
 using IronBlock;
 using IronBlock.Blocks;
 
@@ -11,7 +12,7 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
         public override object Evaluate(Context context)
         {
             ElementInformationType infoType = Enum.Parse<ElementInformationType>(this.Fields.Get("informationType"));
-            IElement element = (IElement)this.Values.Evaluate("element", context);
+            HtmlNode element = (HtmlNode)this.Values.Evaluate("element", context);
             switch (infoType)
             {
                 default:
@@ -19,7 +20,7 @@ namespace PurchaseForMeService.Blocks.Web.AngleSharp
                     string innerHtml = element.InnerHtml;
                     return innerHtml;
                 case ElementInformationType.InnerText:
-                    string innerText = element.Text();
+                    string innerText = element.InnerText;
                     return innerText;
             }
         }

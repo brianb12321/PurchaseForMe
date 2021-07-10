@@ -1,0 +1,116 @@
+﻿@page
+@using PurchaseForMe.Core.Project
+@using PurchaseForMe.Core.Project.Nodes.Blockly
+@model ProjectModel
+@{
+}
+
+<h1>Showing project @Model.Project.Name</h1>
+
+<div class="row">
+    <div class="col-md-auto">
+        <ul id="projectTree">
+            <li><span class="caret">Project Tree</span>
+                <ul class="nested">
+                    <li class="nav-item"><a class="nav-link" onclick="openTab(event, 'pipeline')" id="pipelineLink">Pipelines</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="openTab(event, 'task')">Tasks</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="col">
+        <div class="tree-tab-content" id="pipeline">
+            <h2>Pipelines</h2>
+            <a asp-page="NewPipeline" asp-route-ProjectGuid="@Model.Project.ProjectGuid">
+                <button class="btn btn-info" type="button">New Pipeline</button>
+            </a>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="table-dark">Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (BlocklyPipelineNode pipeline in Model.Project.ProjectItems.Where(i => i.NodeType == NodeType.BlocklyPipeline))
+                {
+                    <tr class="table-primary">
+                        <td>
+                            <a
+                                asp-page="EditPipeline"
+                                asp-route-ProjectGuid="@Model.Project.ProjectGuid"
+                                asp-route-PipelineGuid="@pipeline.NodeGuid">
+                                @pipeline.NodeName
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="tree-tab-content" id="task">
+            <h2>Tasks</h2>
+            <a asp-page="/NewTask" asp-route-ProjectGuid="@Model.Project.ProjectGuid">
+                <button class="btn btn-info" type="button">New Task</button>
+            </a>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="table-dark">Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BlocklyTaskNode task in Model.Project.ProjectItems.Where(i => i.NodeType == NodeType.BlocklyTask))
+                    {
+                        <tr class="table-primary">
+                            <td>
+                                <a asp-page="/EditTask"
+                                   asp-route-ProjectGuid="@Model.ProjectGuid"
+                                   asp-route-TaskGuid="@task.NodeGuid">
+                                    @task.NodeName
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        //https://www.w3schools.com/howto/howto_js_treeview.asp
+        var toggler = document.getElementsByClassName("caret");
+        var i;
+
+        for (i = 0; i < toggler.length; i++) {
+            toggler[i].addEventListener("click", function() {
+                this.parentElement.querySelector(".nested").classList.toggle("tab-active");
+                this.classList.toggle("caret-down");
+            });
+        }
+
+        function openTab(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tree-tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("nav-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" tab-active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " tab-active";
+        }
+
+        document.getElementById("pipelineLink").click();
+    </script>
+}

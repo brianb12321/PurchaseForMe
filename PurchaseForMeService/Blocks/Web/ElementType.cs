@@ -2,6 +2,6 @@
 {
     public enum ElementType
     {
-        Id, Class, Name, TagName, CssSelector
+        Id, Class, Name, TagName, CssSelector, XPath
     }
 }

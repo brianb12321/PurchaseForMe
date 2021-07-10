@@ -1,0 +1,31 @@
+﻿@page
+@model EditPipelineModel
+@{
+}
+
+<form>
+    <h1>Editing pipeline @Model.Form.PipelineName</h1>
+    <a asp-page="/BlockEditor"
+       asp-route-ProjectGuid="@Model.ProjectGuid"
+       asp-route-NodeGuid="@Model.PipelineGuid">
+        <button class="btn btn-primary" type="button">Edit code</button>
+    </a>
+    <ul class="nav nav-tabs" id="pipelineEditTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="home" aria-selected="true">Details</button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="home-tab">
+            <div class="mb-3">
+                <label class="form-label" asp-for="Form.PipelineName">Pipeline Name</label>
+                <input class="form-control" type="text" asp-for="Form.PipelineName" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Form.PipelineCodeName">Pipeline Code Name</label>
+                <input class="form-control" type="text" asp-for="Form.PipelineCodeName" />
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Pipeline</button>
+</form>
