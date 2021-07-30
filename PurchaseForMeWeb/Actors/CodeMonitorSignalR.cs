@@ -89,7 +89,7 @@ namespace PurchaseForMeWeb.Actors
                         $"{_cluster.State.Members.First(m => m.Address.ToString().Equals(request.ClusterNodeUrl)).Address}/user/taskSchedulingBus";
                     ActorSelection targetSchedulingBus = _system.ActorSelection(fullUrl);
                     _taskSchedulingBus = await targetSchedulingBus.ResolveOne(TimeSpan.FromSeconds(30));
-                    var message = new ScheduleTaskImmediatelyMessage((BlocklyTaskNode)codeNode, response.Project);
+                    var message = new ScheduleTaskImmediatelyMessage(response.Project, (BlocklyTaskNode)codeNode);
                     _taskSchedulingBus.Tell(message, Self);
                 }
                 else if (codeNode.NodeType == NodeType.BlocklyPipeline)

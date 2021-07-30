@@ -12,8 +12,8 @@ namespace PurchaseForMeService.Actors
         private readonly IActorRef _taskSchedulingBus;
         private IActorRef _pipelineInstance;
         private IActorRef _callingActor;
-        private Func<object[]> _parameterProvider;
-        private string _runnerInstanceName;
+        private readonly Func<object[]> _parameterProvider;
+        private readonly string _runnerInstanceName;
         public CodeRunner(int runnerId, IActorRef taskSchedulingBus, Func<object[]> parameterProvider, string runnerInstanceName)
         {
             RunnerId = runnerId;

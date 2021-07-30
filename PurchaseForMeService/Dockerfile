@@ -1,5 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:5.0
-
+LABEL org.opencontainers.image.source="https://github.com/brianb12321/PurchaseForMe"
 RUN apt-get update
 
 # Add a user for running applications.

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PurchaseForMe.Core.Project
 {
@@ -27,17 +24,15 @@ namespace PurchaseForMe.Core.Project
         }
     }
 
-    public class CreateProjectResultMessage
-    {
-        public bool IsSuccessful { get; }
-        public string Message { get; }
-        public ProjectSummary Summary { get; }
+    public record CreateProjectResultMessage(bool IsSuccessful, string Message, ProjectSummary Summary = null);
 
-        public CreateProjectResultMessage(bool isSuccessful, string message, ProjectSummary summary = null)
-        {
-            IsSuccessful = isSuccessful;
-            Message = message;
-            Summary = summary;
-        }
-    }
+    public record GetAllProjectsMessage();
+
+    public record ProjectEnumerationMessage(IReadOnlyList<ProjectSummary> EnumeratedProjects);
+
+    public record ProjectSummary(Guid ProjectGuid, string ProjectName);
+
+    public record LoadProjectMessage(Guid ProjectGuid);
+
+    public record SaveProjectMessage(Guid ProjectGuid, string UserId = "");
 }

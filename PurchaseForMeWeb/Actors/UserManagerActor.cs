@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using PurchaseForMe.Core.User;
-using PurchaseForMe.Core.User.Message;
 
 namespace PurchaseForMeWeb.Actors
 {

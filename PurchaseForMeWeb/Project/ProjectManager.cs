@@ -11,7 +11,7 @@ using PurchaseForMe.Core;
 using PurchaseForMe.Core.Configuration;
 using PurchaseForMe.Core.Project;
 using PurchaseForMe.Core.Project.OpenedProjectStore;
-using PurchaseForMe.Core.User.Message;
+using PurchaseForMe.Core.User;
 
 namespace PurchaseForMeWeb.Project
 {
