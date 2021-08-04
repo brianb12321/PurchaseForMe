@@ -57,31 +57,8 @@ namespace PurchaseForMeWeb
             services.AddHttpContextAccessor();
             services.AddSingleton<ActorSystem>(provider =>
             {
-                Config configuration = ConfigurationFactory.ParseString(File.ReadAllText("akkaconf-web.txt"));
-                string seedNodes = Environment.GetEnvironmentVariable("CLUSTER_SEED_NODES");
-                string port = Environment.GetEnvironmentVariable("CLUSTER_PORT");
-                string hostname = Environment.GetEnvironmentVariable("CLUSTER_HOSTNAME");
-                string roles = Environment.GetEnvironmentVariable("CLUSTER_ROLES");
-                if (!string.IsNullOrEmpty(seedNodes))
-                {
-                    configuration = configuration.WithFallback(
-                        ConfigurationFactory.ParseString($"akka.cluster.seed-nodes = [{seedNodes}]"));
-                }
-                if (!string.IsNullOrEmpty(port))
-                {
-                    configuration = configuration.WithFallback(
-                        ConfigurationFactory.ParseString($"akka.remote.dot-netty.tcp.port = {port}"));
-                }
-                if (!string.IsNullOrEmpty(hostname))
-                {
-                    configuration = configuration.WithFallback(
-                        ConfigurationFactory.ParseString($"akka.remote.dot-netty.tcp.hostname = {hostname}"));
-                }
-                if (!string.IsNullOrEmpty(roles))
-                {
-                    configuration = configuration.WithFallback(
-                        ConfigurationFactory.ParseString($"akka.cluster.roles = [{roles}]"));
-                }
+                Config configuration = ConfigurationFactory.ParseString(File.ReadAllText("akkaconf-web.txt"))
+                    .CreateConfigurationWithEnvironment();
 
                 var actorSystem =  ActorSystem.Create("purchaseForMe", configuration);
                 return actorSystem;

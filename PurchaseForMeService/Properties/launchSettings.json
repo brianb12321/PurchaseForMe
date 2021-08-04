@@ -1,11 +1,15 @@
-﻿{
+{
   "profiles": {
     "PurchaseForMeService": {
       "commandName": "Project",
-      "dotnetRunMessages": "true",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
-      }
+        "CLUSTER_ROLES": "\"Task\", \"Pipeline\"",
+        "CLUSTER_SEED_NODES": "\"akka.tcp://purchaseForMe@localhost:8081\"",
+        "DOTNET_ENVIRONMENT": "Development",
+        "CLUSTER_PORT": "8081",
+        "CLUSTER_HOSTNAME": "localhost"
+      },
+      "dotnetRunMessages": "true"
     }
   }
 }

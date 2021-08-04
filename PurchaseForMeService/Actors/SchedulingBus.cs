@@ -2,25 +2,13 @@
 using System.Linq;
 using Akka.Actor;
 using PurchaseForMe.Core.Code;
+using PurchaseForMe.Core.Code.Runner;
+using PurchaseForMe.Core.TaskSystem;
 
 namespace PurchaseForMeService.Actors
 {
     public abstract class SchedulingBus : ReceiveActor, IWithTimers, IWithUnboundedStash
     {
-        public class RunnerInfo
-        {
-            public IActorRef Actor { get; }
-            public IActorRef CallingActor { get; set; }
-            public bool IsRunning { get; set; }
-            public int RunnerId { get; }
-
-            public RunnerInfo(IActorRef actor, int runnerId)
-            {
-                Actor = actor;
-                RunnerId = runnerId;
-            }
-        }
-
         public ITimerScheduler Timers { get; set; }
         public IStash Stash { get; set; }
         protected List<RunnerInfo> RunnerInstances { get; }
@@ -33,6 +21,10 @@ namespace PurchaseForMeService.Actors
                 int numberRunning = RunnerInstances.Count(runner => runner.IsRunning);
                 int numberAvailable = RunnerInstances.Count(runner => runner.IsRunning != true);
                 Sender.Tell(new GetRunnerStatisticsResponseMessage(numberAvailable, numberAvailable));
+            });
+            Receive<GetTaskRunnerInfoForAll>(message =>
+            {
+                Sender.Tell(new TaskRunnerInfoEnumeration(RunnerInstances), Self);
             });
         }
 

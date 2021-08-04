@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "PurchaseForMeAdminConsole": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "CLUSTER_ROLES": "\"AdminConsole\"",
+        "CLUSTER_SEED_NODES": "\"akka.tcp://purchaseForMe@localhost:8081\"",
+        "CLUSTER_PORT": "0",
+        "CLUSTER_HOSTNAME": "localhost",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PROJECT_PATH": "/projects"
+      }
+    }
+  }
+}
