@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMe.Core", "Purch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMeService", "PurchaseForMeService\PurchaseForMeService.csproj", "{92C8B574-C315-4D2B-8BA4-28445BEE5419}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PurchaseForMeAdminConsole", "PurchaseForMeAdminConsole\PurchaseForMeAdminConsole.csproj", "{A866C120-89FE-45DA-9EB1-F4620036D19A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMeAdminConsole", "PurchaseForMeAdminConsole\PurchaseForMeAdminConsole.csproj", "{A866C120-89FE-45DA-9EB1-F4620036D19A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PurchaseForMe.Tests", "PurchaseForMe.Tests\PurchaseForMe.Tests.csproj", "{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
