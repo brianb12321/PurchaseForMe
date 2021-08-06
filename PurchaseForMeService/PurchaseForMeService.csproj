@@ -21,7 +21,7 @@
     <PackageReference Include="Akka.Cluster" Version="1.4.21" />
     <PackageReference Include="AngleSharp" Version="0.16.0" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="IronBlock" Version="1.0.16" />
+    <PackageReference Include="IronBlock" Version="1.0.17" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="ScrapySharp" Version="3.0.0" />
     <PackageReference Include="Selenium.Support" Version="3.141.0" />
