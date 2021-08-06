@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Microsoft.Extensions.Logging;
 using PurchaseForMe.Core;
+using PurchaseForMe.Core.Code.Abstraction;
 using PurchaseForMe.Core.Code.Runner;
 using PurchaseForMe.Core.TaskSystem;
 using PurchaseForMe.Core.TaskSystem.TaskRunner;
@@ -10,12 +11,12 @@ namespace PurchaseForMeService.Actors.TaskSystem
     public class TaskSchedulingBus : SchedulingBus
     {
         private readonly ILogger<TaskSchedulingBus> _logger;
-        public TaskSchedulingBus(ILogger<TaskSchedulingBus> logger, IActorRef pipelineBus)
+        public TaskSchedulingBus(ILogger<TaskSchedulingBus> logger, IActorRef pipelineBus, ICodeContextFactory factory)
         {
             _logger = logger;
             for (int i = 0; i < 5; i++)
             {
-                IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner<TaskRunnerInstance>(i, Self, () => new object[] {pipelineBus}, "taskInstance")), $"taskRunner-{i}");
+                IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner<TaskRunnerInstance>(i, Self, () => new object[] {pipelineBus, factory}, "taskInstance")), $"taskRunner-{i}");
                 RunnerInstances.Add(new RunnerInfo(taskRunner, i));
             }
             Receive<ScheduleTaskImmediatelyMessage>(message =>

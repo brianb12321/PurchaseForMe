@@ -1,6 +1,7 @@
 ﻿using System;
 using Akka.Actor;
 using Microsoft.Extensions.Logging;
+using PurchaseForMe.Core.Code.Abstraction;
 using PurchaseForMe.Core.Code.Runner;
 using PurchaseForMe.Core.TaskSystem.TaskRunner;
 using PurchaseForMe.Core.WebPipeline;
@@ -11,13 +12,13 @@ namespace PurchaseForMeService.Actors.WebPipeline
     {
         private readonly ILogger<PipelineSchedulingBus> _logger;
 
-        public PipelineSchedulingBus(ILogger<PipelineSchedulingBus> logger)
+        public PipelineSchedulingBus(ILogger<PipelineSchedulingBus> logger, ICodeContextFactory factory)
         {
             _logger = logger;
             for (int i = 0; i < 5; i++)
             {
                 IActorRef taskRunner = Context.ActorOf(Props.Create(() => new CodeRunner<WebPipelineInstanceActor>(i, Self,
-                    () => new Object[] {}, "pipelineInstance")), $"webPipelineRunner-{i}");
+                    () => new Object[] {factory}, "pipelineInstance")), $"webPipelineRunner-{i}");
                 RunnerInstances.Add(new RunnerInfo(taskRunner, i));
             }
 

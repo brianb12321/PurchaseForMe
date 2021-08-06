@@ -3,12 +3,14 @@ using Akka.Actor;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using PurchaseForMe.Core.Code;
+using PurchaseForMe.Core.Code.Abstraction;
+using PurchaseForMeService;
 using PurchaseForMeService.Actors.TaskSystem;
 using PurchaseForMeService.Actors.WebPipeline;
 
 namespace PurchaseForMe.Tests.Service
 {
-    public class TaskSchedulingBusTests
+    public class SchedulingBusTests
     {
         private ActorSystem _system;
         private IActorRef _taskSchedulingBus;
@@ -19,9 +21,9 @@ namespace PurchaseForMe.Tests.Service
         {
             _system = ActorSystem.Create("purchaseForMe-tests");
             _pipelineBus =
-                _system.ActorOf(Props.Create(() => new PipelineSchedulingBus(new NullLogger<PipelineSchedulingBus>())));
+                _system.ActorOf(Props.Create(() => new PipelineSchedulingBus(new NullLogger<PipelineSchedulingBus>(), new BlocklyCodeContext.BlocklyCodeContextFactory())));
             _taskSchedulingBus = _system.ActorOf(Props.Create(() =>
-                new TaskSchedulingBus(new NullLogger<TaskSchedulingBus>(), _pipelineBus)));
+                new TaskSchedulingBus(new NullLogger<TaskSchedulingBus>(), _pipelineBus, new BlocklyCodeContext.BlocklyCodeContextFactory())));
         }
 
         [Test]
@@ -31,6 +33,11 @@ namespace PurchaseForMe.Tests.Service
                 await _taskSchedulingBus.Ask<GetRunnerStatisticsResponseMessage>(new GetRunnerStatisticsMessage());
 
             Assert.AreEqual(message.NumberOfRunnersAvailable, 5);
+        }
+
+        public async Task TaskSchedulingBus_RunnerTransitionedIntoRunning()
+        {
+            
         }
         [Test]
         public async Task PipelineSchedulingBus_RunnerInstancesPopulated()
