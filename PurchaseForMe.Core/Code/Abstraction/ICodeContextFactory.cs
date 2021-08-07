@@ -8,6 +8,7 @@ namespace PurchaseForMe.Core.Code.Abstraction
 {
     public interface ICodeContextFactory
     {
+        ICodeContext Create();
         ICodeContext Create(string code);
     }
 }

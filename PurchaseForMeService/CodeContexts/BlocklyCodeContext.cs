@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using IronBlock;
-using IronBlock.Blocks;
 using PurchaseForMe.Core.Code.Abstraction;
+using PurchaseForMeService.Blocks;
 
-namespace PurchaseForMeService
+namespace PurchaseForMeService.CodeContexts
 {
     public class BlocklyCodeContext : ICodeContext
     {
@@ -17,10 +17,25 @@ namespace PurchaseForMeService
         {
             public Dictionary<string, Func<IBlock>> AdditionalBlocks { get; }
 
-            public BlocklyCodeContextFactory()
+            public BlocklyCodeContextFactory(string blockType)
             {
                 AdditionalBlocks = new Dictionary<string, Func<IBlock>>();
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                foreach (Type type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract))
+                {
+                    RegisterBlockAttribute block = type.GetCustomAttribute<RegisterBlockAttribute>();
+                    if (block != null && (block.Category == "All" || block.Category == blockType))
+                    {
+                        AdditionalBlocks.Add(block.BlockName, () => (IBlock)Activator.CreateInstance(type));
+                    }
+                }
             }
+
+            public ICodeContext Create()
+            {
+                throw new NotImplementedException();
+            }
+
             public ICodeContext Create(string code)
             {
                 XmlDocument document = new XmlDocument();
@@ -29,9 +44,9 @@ namespace PurchaseForMeService
             }
         }
         public Workspace Workspace { get; }
-        private XmlDocument _document;
+        private readonly XmlDocument _document;
         public Dictionary<string, object> Variables { get; }
-        public Dictionary<string, object> Functions { get; }
+        public Dictionary<string, Delegate> Functions { get; }
 
         private BlocklyCodeContext(XmlDocument workspace, IReadOnlyDictionary<string, Func<IBlock>> additionalBlocks)
         {
@@ -44,7 +59,7 @@ namespace PurchaseForMeService
             }
             Workspace = parser.Parse(workspace.InnerXml, true);
             Variables = new Dictionary<string, object>();
-            Functions = new Dictionary<string, object>();
+            Functions = new Dictionary<string, Delegate>();
         }
         public override string ToString()
         {
@@ -65,7 +80,7 @@ namespace PurchaseForMeService
             }
             foreach (var function in Functions)
             {
-                rootContext.Functions.Add(function);
+                rootContext.Functions.Add(function.Key, function.Value);
             }
 
             try

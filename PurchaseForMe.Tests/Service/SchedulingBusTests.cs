@@ -7,6 +7,7 @@ using PurchaseForMe.Core.Code.Abstraction;
 using PurchaseForMeService;
 using PurchaseForMeService.Actors.TaskSystem;
 using PurchaseForMeService.Actors.WebPipeline;
+using PurchaseForMeService.CodeContexts;
 
 namespace PurchaseForMe.Tests.Service
 {
@@ -21,9 +22,9 @@ namespace PurchaseForMe.Tests.Service
         {
             _system = ActorSystem.Create("purchaseForMe-tests");
             _pipelineBus =
-                _system.ActorOf(Props.Create(() => new PipelineSchedulingBus(new NullLogger<PipelineSchedulingBus>(), new BlocklyCodeContext.BlocklyCodeContextFactory())));
+                _system.ActorOf(Props.Create(() => new PipelineSchedulingBus(new NullLogger<PipelineSchedulingBus>(), new BlocklyCodeContext.BlocklyCodeContextFactory("Selenium"))));
             _taskSchedulingBus = _system.ActorOf(Props.Create(() =>
-                new TaskSchedulingBus(new NullLogger<TaskSchedulingBus>(), _pipelineBus, new BlocklyCodeContext.BlocklyCodeContextFactory())));
+                new TaskSchedulingBus(new NullLogger<TaskSchedulingBus>(), _pipelineBus, new BlocklyCodeContext.BlocklyCodeContextFactory("Selenium"))));
         }
 
         [Test]

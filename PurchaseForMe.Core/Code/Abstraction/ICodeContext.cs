@@ -13,7 +13,7 @@ namespace PurchaseForMe.Core.Code.Abstraction
     public interface ICodeContext
     {
         Dictionary<string, object> Variables { get; }
-        Dictionary<string, object> Functions { get; }
+        Dictionary<string, Delegate> Functions { get; }
         Task Load(string code);
         Task<object> Execute(string[] args, CancellationToken token);
     }

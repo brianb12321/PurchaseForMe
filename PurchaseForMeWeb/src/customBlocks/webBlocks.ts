@@ -1,4 +1,5 @@
 ﻿import * as Blockly from 'blockly';
+import "blockly/lua";
 import { registerGetElementBlocks } from './getElementBlocks';
 
 export function registerWebBlocks() {
@@ -26,6 +27,11 @@ export function registerWebBlocks() {
                 .appendField("setup");
         }
     }
+
+    Blockly["Lua"]["web_openDriver"] = (block: Blockly.Block) => {
+        
+    };
+    
 
     registerGetElementBlocks();
 

@@ -2,6 +2,7 @@
 import DarkTheme from '@blockly/theme-dark';
 import * as signalR from "@microsoft/signalr";
 import * as Blockly from "blockly";
+import "blockly/generators/lua";
 import { registerErrorHandlingBlocks } from './customBlocks/errorHandlingBlocks';
 import { registerPipelineBlocks } from './customBlocks/pipelineBlocks';
 import { registerWebBlocks } from './customBlocks/webBlocks';
@@ -113,6 +114,7 @@ export function initWorkspace() {
     }
     $("#runButton").click((evt) => {
         evt.preventDefault();
+        //var generatedCode = Blockly["Lua"].workspaceToCode(workspace);
         var xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
         var selectedNodeUrl = $("#nodeUrls").val().toString();
         var codeRequest: ICodeRequest = {
