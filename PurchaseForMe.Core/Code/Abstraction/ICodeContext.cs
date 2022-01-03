@@ -14,7 +14,6 @@ namespace PurchaseForMe.Core.Code.Abstraction
     {
         Dictionary<string, object> Variables { get; }
         Dictionary<string, Delegate> Functions { get; }
-        Task Load(string code);
         Task<object> Execute(string[] args, CancellationToken token);
     }
 }

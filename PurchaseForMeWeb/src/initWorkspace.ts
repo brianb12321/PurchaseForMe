@@ -2,7 +2,6 @@
 import DarkTheme from '@blockly/theme-dark';
 import * as signalR from "@microsoft/signalr";
 import * as Blockly from "blockly";
-import "blockly/generators/lua";
 import { registerErrorHandlingBlocks } from './customBlocks/errorHandlingBlocks';
 import { registerPipelineBlocks } from './customBlocks/pipelineBlocks';
 import { registerWebBlocks } from './customBlocks/webBlocks';

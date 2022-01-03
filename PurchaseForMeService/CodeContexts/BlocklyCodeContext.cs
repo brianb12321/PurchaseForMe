@@ -66,10 +66,6 @@ namespace PurchaseForMeService.CodeContexts
             return _document.InnerXml;
         }
 
-        public Task Load(string code)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<object> Execute(string[] args, CancellationToken token)
         {

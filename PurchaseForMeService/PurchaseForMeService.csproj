@@ -22,8 +22,8 @@
     <PackageReference Include="AngleSharp" Version="0.16.0" />
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
     <PackageReference Include="IronBlock" Version="1.0.17" />
+    <PackageReference Include="Jint" Version="2.11.58" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="NLua" Version="1.5.9" />
     <PackageReference Include="ScrapySharp" Version="3.0.0" />
     <PackageReference Include="Selenium.Support" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />

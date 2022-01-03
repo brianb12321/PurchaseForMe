@@ -3,9 +3,11 @@
     public class InstanceFinishedMessage
     {
         public object Result { get; }
+        public bool IsSuccessful { get; }
 
-        public InstanceFinishedMessage(object result)
+        public InstanceFinishedMessage(bool isSuccessful, object result)
         {
+            IsSuccessful = isSuccessful;
             Result = result;
         }
     }

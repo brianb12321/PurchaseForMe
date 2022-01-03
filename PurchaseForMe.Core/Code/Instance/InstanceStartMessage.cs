@@ -3,11 +3,11 @@
     public class InstanceStartMessage
     {
         public object AdditionalData { get; }
-        public string WorkspaceXml { get; }
+        public string Code { get; }
 
-        public InstanceStartMessage(string workspaceXml, object additionalData = null)
+        public InstanceStartMessage(string code, object additionalData = null)
         {
-            WorkspaceXml = workspaceXml;
+            Code = code;
             AdditionalData = additionalData;
         }
     }
