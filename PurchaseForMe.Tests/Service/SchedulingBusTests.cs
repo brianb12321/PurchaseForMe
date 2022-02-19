@@ -36,10 +36,6 @@ namespace PurchaseForMe.Tests.Service
             Assert.AreEqual(message.NumberOfRunnersAvailable, 5);
         }
 
-        public async Task TaskSchedulingBus_RunnerTransitionedIntoRunning()
-        {
-            
-        }
         [Test]
         public async Task PipelineSchedulingBus_RunnerInstancesPopulated()
         {

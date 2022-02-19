@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CodeContexts\**" />
+    <EmbeddedResource Remove="CodeContexts\**" />
+    <None Remove="CodeContexts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Akka" Version="1.4.21" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="NUnit" Version="3.13.1" />
@@ -17,10 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\PurchaseForMe.Core\PurchaseForMe.Core.csproj" />
     <ProjectReference Include="..\PurchaseForMeService\PurchaseForMeService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="CodeContexts\" />
   </ItemGroup>
 
 </Project>

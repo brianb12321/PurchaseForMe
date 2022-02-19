@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31129.286
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMeWeb", "PurchaseForMeWeb\PurchaseForMeWeb.csproj", "{3A5707B1-43CA-41C9-BAA9-4647D51B623D}"
 EndProject
@@ -9,9 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMe.Core", "Purch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMeService", "PurchaseForMeService\PurchaseForMeService.csproj", "{92C8B574-C315-4D2B-8BA4-28445BEE5419}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMeAdminConsole", "PurchaseForMeAdminConsole\PurchaseForMeAdminConsole.csproj", "{A866C120-89FE-45DA-9EB1-F4620036D19A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PurchaseForMe.Tests", "PurchaseForMe.Tests\PurchaseForMe.Tests.csproj", "{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseForMe.Tests", "PurchaseForMe.Tests\PurchaseForMe.Tests.csproj", "{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F05D3CCA-CA23-405D-9D33-CF0DC0967621}"
 	ProjectSection(SolutionItems) = preProject
@@ -36,10 +34,6 @@ Global
 		{92C8B574-C315-4D2B-8BA4-28445BEE5419}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92C8B574-C315-4D2B-8BA4-28445BEE5419}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92C8B574-C315-4D2B-8BA4-28445BEE5419}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A866C120-89FE-45DA-9EB1-F4620036D19A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3A62A7E-26CC-4FE5-8562-CAA7384CCCD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
