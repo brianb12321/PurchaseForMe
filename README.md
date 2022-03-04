@@ -6,6 +6,8 @@
 
 Want a gaming system, new tech, or want to make your life easier? Try the PurchaseForMe purchasing bot
 
+![Task Editor](https://github.com/brianb12321/PurchaseForMe/raw/master/Images/TaskEditor.PNG)
+
 # Benefits
 * Distribute scraping and purchasing tasks across systems
 * Easy to use drag-and-drop scripting system. If you know HTML, you can program this bot!
