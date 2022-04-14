@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>dotnet-PurchaseForMeService-CC7C5419-0D1A-43EC-9C82-0EAC1F566D64</UserSecretsId>
   </PropertyGroup>
 
