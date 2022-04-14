@@ -1,1 +1,5 @@
 image: gitpod/workspace-dotnet
+
+tasks:
+  - name: Restore NuGet packages
+  - init: dotnet restore
